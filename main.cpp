@@ -29,3 +29,4 @@ int main(int ac, char **av)
 // do more test
 // check for the mandatory attribute are full
 // if there is non valid attri in location or server throw
+// WAAAAAAA ZBIIIIIIIIIIIIIIII
