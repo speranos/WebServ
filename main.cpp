@@ -2,7 +2,7 @@
 
 int main(int ac, char **av)
 {
-	webserv	config_file;
+	Server	server;
 	if(ac != 2)
 	{
 		std::cout << "ERROR: More or less then the argument requierd !" << std::endl;
@@ -11,7 +11,7 @@ int main(int ac, char **av)
 	
 	try
 	{
-		ft_read(av[1], config_file);
+		ft_read(av[1], server);
 	}
 	catch(std::exception &e)
 	{
@@ -19,3 +19,13 @@ int main(int ac, char **av)
 	}
 
 }
+
+
+// TOOOO DOOOOOOOOOOO:
+// new line befor the new server
+// complete the srttere wiht the attribute 
+// check if the server vector are full wiht multiple server
+// optimise the code
+// do more test
+// check for the mandatory attribute are full
+// if there is non valid attri in location or server throw
