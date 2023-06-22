@@ -7,15 +7,18 @@
 class location_obj
 {
 private:
-	std::string	root;
+	typedef std::list<std::string>	methods;
 	std::string	location;
+	std::string	root;
 	std::string	index;
 	std::string	redir;
-	std::string	methods;
 	std::string	upload;
+	methods		methods_list;
 	// bool		cgi;
 public:
 	void	loc_setter(std::string &str, std::string &attr);
+	void	loc_getter();
+	void	ft_add_methods_list(methods &methods_list, std::string &after);
 };
 /////////////////////////////
 class Server_obj
@@ -29,6 +32,7 @@ private:
 public:
 	void	setter(std::string &str, std::string &attr);
 	void	push(location_obj &loc_obj);
+	void	getter();
 	// void	set_body_size();
 	// void	set_loc_path();
 };
@@ -40,6 +44,8 @@ void	ft_read(char *file_name, Server &config_file);
 void	ft_add_server(std::fstream &file, Server &config_file);
 void	ft_add_block(Server_obj &config_file, std::string &befor, std::string &after);
 void	ft_add_location(std::fstream &file, Server_obj &config_file, Server Cont_server, std::string &befor, std::string &after);
+void	ft_split_line(std::string &line, std::string &befor, std::string &after);
+
 
 
 // void	ft_add_block(Server &config_file, std::string &befor, std::string &after);

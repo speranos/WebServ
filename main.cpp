@@ -12,6 +12,9 @@ int main(int ac, char **av)
 	try
 	{
 		ft_read(av[1], server);
+		size_t	i = 0;
+		while (i < server.size())
+			server[i++].getter();
 	}
 	catch(std::exception &e)
 	{

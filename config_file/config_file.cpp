@@ -6,14 +6,56 @@ void	location_obj::loc_setter(std::string &str, std::string &attr)
 		location = attr;
 	else if(str == "root")
 		root = attr;
+	else if(str == "methods")
+		ft_add_methods_list(methods_list, attr);
+	else if(str == "upload")
+		upload = attr;
+	else if(str == "redir")
+		redir = attr;
+	else if(str == "index")
+		index = attr;
+}
+
+void	location_obj::ft_add_methods_list(methods &methods_list, std::string &after)
+{
+	size_t		start = 0;
+	size_t		end = 0;
+	std::string	push;
+
+	if(after.size())
+	{
+		while(end < after.size())
+		{
+			end = after.find(' ', start);
+			push = after.substr(start, end);
+			if(push != "GET" && push != "POST" && push != "DELET")
+				throw std::invalid_argument("ERROR: Unsupported method !");
+			methods_list.push_back(push);
+			after.erase(start, (end + 1));
+		}
+	}
+}
+
+void	location_obj::loc_getter()
+{
+	std::cout << location << "\n" << root << "\n" << "\n" << index << "\n" << redir << "\n" << upload << std::endl;
+}
+
+void	Server_obj::getter()
+{
+	size_t	i = 0;
+	std::cout << port << "\n" << host << "\n" << body_size << std::endl;
+	while(i < C_location.size())
+		C_location[i++].loc_getter();
 }
 
 void	Server_obj::setter(std::string &str, std::string &attr)
 {
-	if(attr == "listen")
-		port = str;
-	else if(attr == "host")
-		host = str;
+	if(str == "listen")
+		port = attr;
+	else if(str == "host")
+		host = attr;
+
 	// else
 	// 	loc_path.loc_setter(str, attr);
 }
@@ -43,56 +85,61 @@ void	ft_add_server(std::fstream &file, Server &server)
 	std::string		line;
 	std::string		befor;
 	std::string		after;
-	size_t			i = 0;
 	bool			flag;
 	Server_obj		config_file;
 
 	std::getline(file, line);
 	if(line != "server {")
 		throw std::invalid_argument("ERROR: Server block missing !");
+
 	while (std::getline(file, line))
 	{
-		// std::cout << line << std::endl;
+
+		if(line == "}")
+		{
+			server.push_back(config_file);
+			break;
+		}
 		flag = line.find(' ');
 		if((flag && line.size() >= 1) || line.size() >= 1)
 		{
-			if(line == "}")
-			{
-				server.push_back(config_file);
-				break;
-			}
-			i = 0;
-			while(line[i] <= 32 && i < line.size())
-				i++;
-			line = line.substr(i, line.size());
-
-			befor = line.substr(0, line.find(' '));
-
-			after = line.substr(line.find(' ') + 1, line.size());
-			
+			ft_split_line(line, befor, after);			
 			if(befor == "location")
+			{
 				ft_add_location(file, config_file, server, befor, after);
+			}
 			else
 				ft_add_block(config_file, befor, after);
 		}
 		else if(file.peek() == EOF)
 			std::cout << "WAAAQAAAAAAA HASSSSSSSAAAAAAAAAAANNNNNNN" << std::endl;
-		// else if(line.size() >= 1)
-		// 	ft_check_bracket(file, line);
 	}
+}
+
+void	ft_split_line(std::string &line, std::string &befor, std::string &after)
+{
+	size_t	i;
+	i = 0;
+	while(line[i] <= 32 && i < line.size())
+		i++;
+	line = line.substr(i, line.size());
+	i = line.find(' ');
+	befor = line.substr(0, i);
+	line.erase(0, i);
+	after = line.substr(line.find(' ') + 1, line.size());
 }
 
 void	ft_add_location(std::fstream &file, Server_obj &config_file, Server server, std::string &befor, std::string &after)
 {
 	std::string		line;
 	location_obj	loc_obj;
+	bool 			flag;
 
-	bool flag = after.find('{');
+	flag = after.find('{');
 	if(!flag || after.find('{') != (after.size() - 1))
 		throw std::invalid_argument("ERROR: Bracket syntax error !");
 	after = after.substr(0, after.find(' '));
-	config_file.setter(befor, after);
-	size_t	i = 0;
+	loc_obj.loc_setter(befor, after);
 	while(std::getline(file, line))
 	{
 		if(line == "}")
@@ -100,29 +147,21 @@ void	ft_add_location(std::fstream &file, Server_obj &config_file, Server server,
 			config_file.push(loc_obj);
 			break;
 		}
-		bool flag = line.find(' ');
+		flag = line.find(' ');
 		if((flag && line.size() > 1) || line.size() > 1)
 		{
-			i = 0;
-			while(line[i] <= 32 && i < line.size())
-				i++;
-			line = line.substr(i, line.size());
-
-			befor = line.substr(0, line.find(' '));
-
-			after = line.substr(line.find(' ') + 1, line.size());
+			ft_split_line(line, befor, after);
 			loc_obj.loc_setter(befor, after);
 		}
 		else if(file.peek() == EOF)
-			std::cout << "WAAAQAAAAAAA HASSSSSSSAAAAAAAAAAANNNNNNN" << std::endl;
+			std::cout << "WAAAAAAAAAAA HASSSSSSSAAAAAAAAAAANNNNNNN" << std::endl;
 	}
 	(void)server;
 }
 
 void	ft_add_block(Server_obj &config_file, std::string &befor, std::string &after)
 {
-	// std::cout << "befor ========= '" << befor << "'" << std::endl;
 	after = after.substr(after.find_first_not_of(' '));
-	// std::cout << "after ========= '" << after << "'\n" << std::endl;
 	config_file.setter(befor, after);
 }
+
