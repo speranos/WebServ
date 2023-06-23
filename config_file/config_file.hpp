@@ -14,11 +14,13 @@ private:
 	std::string	redir;
 	std::string	upload;
 	methods		methods_list;
-	// bool		cgi;
+	bool		auto_index;
+	bool		cgi;
 public:
 	void	loc_setter(std::string &str, std::string &attr);
 	void	loc_getter();
-	void	ft_add_methods_list(methods &methods_list, std::string &after);
+	void	ft_add_methods_list(std::string &after);
+	void	ft_set_bool(std::string &befor, std::string &after);
 };
 /////////////////////////////
 class Server_obj

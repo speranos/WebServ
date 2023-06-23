@@ -7,16 +7,38 @@ void	location_obj::loc_setter(std::string &str, std::string &attr)
 	else if(str == "root")
 		root = attr;
 	else if(str == "methods")
-		ft_add_methods_list(methods_list, attr);
+		ft_add_methods_list(attr);
 	else if(str == "upload")
 		upload = attr;
 	else if(str == "redir")
 		redir = attr;
 	else if(str == "index")
 		index = attr;
+	else if(str == "cgi" || str == "auto_index")
+		ft_set_bool(str, attr);
 }
 
-void	location_obj::ft_add_methods_list(methods &methods_list, std::string &after)
+void	location_obj::ft_set_bool(std::string &befor, std::string &after)
+{
+	if(after == "on")
+	{
+		if(befor == "cgi")
+			cgi = true;
+		else
+			auto_index = true;
+	}
+	else if(after == "off")
+	{
+		if(befor == "cgi")
+			cgi = false;
+		else
+			auto_index = false;
+	}
+	else
+		throw std::invalid_argument("ERROR: This directive can only be on or off !");
+}
+
+void	location_obj::ft_add_methods_list(std::string &after)
 {
 	size_t		start = 0;
 	size_t		end = 0;
@@ -38,7 +60,14 @@ void	location_obj::ft_add_methods_list(methods &methods_list, std::string &after
 
 void	location_obj::loc_getter()
 {
-	std::cout << location << "\n" << root << "\n" << "\n" << index << "\n" << redir << "\n" << upload << std::endl;
+	std::cout << location << "\n" << root << "\n" << "\n" << index << "\n" << redir << "\n" << upload << "\n" << cgi << "\n" << auto_index << std::endl;
+	methods::iterator	iter = methods_list.begin();
+	while (iter != methods_list.end())
+	{
+		std::cout << *iter << std::endl;
+		iter++;
+	}
+	
 }
 
 void	Server_obj::getter()
@@ -55,9 +84,6 @@ void	Server_obj::setter(std::string &str, std::string &attr)
 		port = attr;
 	else if(str == "host")
 		host = attr;
-
-	// else
-	// 	loc_path.loc_setter(str, attr);
 }
 
 void	Server_obj::push(location_obj &loc_obj)
@@ -89,7 +115,7 @@ void	ft_add_server(std::fstream &file, Server &server)
 	Server_obj		config_file;
 
 	std::getline(file, line);
-	if(line != "server {")
+	if(line != "server {" && line.size() != 0)
 		throw std::invalid_argument("ERROR: Server block missing !");
 
 	while (std::getline(file, line))
