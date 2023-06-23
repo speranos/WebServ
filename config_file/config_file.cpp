@@ -16,6 +16,8 @@ void	location_obj::loc_setter(std::string &str, std::string &attr)
 		index = attr;
 	else if(str == "cgi" || str == "auto_index")
 		ft_set_bool(str, attr);
+	else
+		throw std::invalid_argument("ERROR: Unsupported directive !");
 }
 
 void	location_obj::ft_set_bool(std::string &befor, std::string &after)
@@ -50,7 +52,7 @@ void	location_obj::ft_add_methods_list(std::string &after)
 		{
 			end = after.find(' ', start);
 			push = after.substr(start, end);
-			if(push != "GET" && push != "POST" && push != "DELET")
+			if((push != "GET" && push != "POST" && push != "DELETE") && methods_list.size() >= 3)
 				throw std::invalid_argument("ERROR: Unsupported method !");
 			methods_list.push_back(push);
 			after.erase(start, (end + 1));
@@ -84,6 +86,8 @@ void	Server_obj::setter(std::string &str, std::string &attr)
 		port = attr;
 	else if(str == "host")
 		host = attr;
+	else
+		throw std::invalid_argument("ERROR: Unsupported directive !");
 }
 
 void	Server_obj::push(location_obj &loc_obj)
@@ -113,17 +117,28 @@ void	ft_add_server(std::fstream &file, Server &server)
 	std::string		after;
 	bool			flag;
 	Server_obj		config_file;
+	int				end_serv = 0;
 
-	std::getline(file, line);
-	if(line != "server {" && line.size() != 0)
-		throw std::invalid_argument("ERROR: Server block missing !");
+	while(std::getline(file, line))
+	{
+		if(line != "server {" && line.size() != 0)
+			throw std::invalid_argument("ERROR: Server block missing !");
+		else if(line == "server {")
+		{
+			end_serv = 1;
+			break;
+		}
+		else if(line.size() == 0)
+			continue;
+	}
 
-	while (std::getline(file, line))
+	while (std::getline(file, line) && end_serv == 1)
 	{
 
 		if(line == "}")
 		{
 			server.push_back(config_file);
+			end_serv = 0;
 			break;
 		}
 		flag = line.find(' ');
@@ -140,6 +155,8 @@ void	ft_add_server(std::fstream &file, Server &server)
 		else if(file.peek() == EOF)
 			std::cout << "WAAAQAAAAAAA HASSSSSSSAAAAAAAAAAANNNNNNN" << std::endl;
 	}
+	if(end_serv == 1)
+		throw std::invalid_argument("ERROR: Unclosed server !");
 }
 
 void	ft_split_line(std::string &line, std::string &befor, std::string &after)
