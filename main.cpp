@@ -25,14 +25,3 @@ int main(int ac, char **av)
 	}
 
 }
-
-
-// TOOOO DOOOOOOOOOOO:
-// new line befor the new server
-// complete the srttere wiht the attribute 
-// check if the server vector are full wiht multiple server
-// optimise the code
-// do more test
-// check for the mandatory attribute are full
-// if there is non valid attri in location or server throw
-// WAAAAAAA ZBIIIIIIIIIIIIIIII
