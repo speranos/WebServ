@@ -12,12 +12,12 @@ int main(int ac, char **av)
 	try
 	{
 		ft_read(av[1], server);
-		size_t	i = 0;
-		while (i < server.size())
-		{
-			std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
-			server[i++].getter();
-		}
+		// size_t	i = 0;
+		// while (i < server.size())
+		// {
+		// 	std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
+		// 	server[i++].getter();
+		// }
 	}
 	catch(std::exception &e)
 	{

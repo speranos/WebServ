@@ -26,14 +26,17 @@ public:
 class Server_obj
 {
 private:
+	typedef std::vector<location_obj>	location;
+	typedef std::map<std::string ,std::string>	error_page;
 	std::string		port;
 	std::string		host;
 	std::string		body_size;
-	typedef std::vector<location_obj> location;
 	location		C_location;
+	error_page		error;
 public:
 	void	setter(std::string &str, std::string &attr);
 	void	push(location_obj &loc_obj);
+	void	ft_add_error_page(std::string &str);
 	void	getter();
 	// void	set_body_size();
 	// void	set_loc_path();

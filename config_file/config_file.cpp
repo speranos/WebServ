@@ -86,8 +86,24 @@ void	Server_obj::setter(std::string &str, std::string &attr)
 		port = attr;
 	else if(str == "host")
 		host = attr;
+	else if(str == "error_page")
+		ft_add_error_page(attr);
 	else
 		throw std::invalid_argument("ERROR: Unsupported directive !");
+}
+
+void	Server_obj::ft_add_error_page(std::string &str)
+{
+	std::string	befor;
+	std::string	after;
+
+	ft_split_line(str, befor, after);
+	if(befor.size() != 3)
+		throw std::invalid_argument("ERROR: Unsupported error code !");
+	std::pair<std::string, std::string>	p;
+	p.first = befor;
+	p.second = after;
+	error.insert(p);
 }
 
 void	Server_obj::push(location_obj &loc_obj)
@@ -146,14 +162,10 @@ void	ft_add_server(std::fstream &file, Server &server)
 		{
 			ft_split_line(line, befor, after);			
 			if(befor == "location")
-			{
 				ft_add_location(file, config_file, server, befor, after);
-			}
 			else
 				ft_add_block(config_file, befor, after);
 		}
-		else if(file.peek() == EOF)
-			std::cout << "WAAAQAAAAAAA HASSSSSSSAAAAAAAAAAANNNNNNN" << std::endl;
 	}
 	if(end_serv == 1)
 		throw std::invalid_argument("ERROR: Unclosed server !");
@@ -161,8 +173,8 @@ void	ft_add_server(std::fstream &file, Server &server)
 
 void	ft_split_line(std::string &line, std::string &befor, std::string &after)
 {
-	size_t	i;
-	i = 0;
+	size_t	i = 0;
+
 	while(line[i] <= 32 && i < line.size())
 		i++;
 	line = line.substr(i, line.size());
@@ -196,8 +208,6 @@ void	ft_add_location(std::fstream &file, Server_obj &config_file, Server server,
 			ft_split_line(line, befor, after);
 			loc_obj.loc_setter(befor, after);
 		}
-		else if(file.peek() == EOF)
-			std::cout << "WAAAAAAAAAAA HASSSSSSSAAAAAAAAAAANNNNNNN" << std::endl;
 	}
 	(void)server;
 }
@@ -207,4 +217,3 @@ void	ft_add_block(Server_obj &config_file, std::string &befor, std::string &afte
 	after = after.substr(after.find_first_not_of(' '));
 	config_file.setter(befor, after);
 }
-
