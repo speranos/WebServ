@@ -13,7 +13,12 @@ void	Server_obj::setter(std::string &str, std::string &attr)
 	if(str == "listen")
 		port = attr;
 	else if(str == "host")
-		host = attr;
+	{
+		if(attr == "localhost")
+			host = "127.0.0.1";
+		else
+			host = attr;
+	}
 	else if(str == "error_page")
 		ft_add_error_page(attr);
 	else
