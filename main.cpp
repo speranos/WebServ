@@ -1,6 +1,8 @@
 #include "webserv.hpp"
 #include <sstream>
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 void sendResponse(int clientSocket, const std::string& content, const std::string& contentType) {
 	// std::cout << "\n\n" << content << "\n\n" << std::endl;
@@ -33,12 +35,17 @@ int main(int ac, char **av)
 	try
 	{
 		ft_read(av[1], server);
-		// size_t	i = 0;
-		// while (i < server.size())
-		// {
-		// 	std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
-		// 	server[i++].getter();
-		// }
+		// getaddrinfo();
+		//create multi socket
+		//create a structure to handle reading for multiple fd
+		//handle non-blocking socket
+		//check for host and port if entred twice
+		size_t	i = 0;
+		while (i < server.size())
+		{
+			std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
+			server[i++].getter();
+		}
 		int	sck_fd;
 		long	valread;
 		sockaddr_in	address;

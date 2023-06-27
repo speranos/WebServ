@@ -6,6 +6,16 @@ void	Server_obj::getter()
 	std::cout << port << "\n" << host << "\n" << body_size << std::endl;
 	while(i < C_location.size())
 		C_location[i++].loc_getter();
+	i = 0;
+	error_page::iterator iter = error.begin();
+	std::pair<std::string, std::string>	p;
+
+	while(iter != error.end())
+	{
+		p = *iter;
+		std::cout << "code >>> " << p.first << " patht to err_page >>> " << p.second << std::endl;
+		iter++;
+	}
 }
 
 void	Server_obj::setter(std::string &str, std::string &attr)
