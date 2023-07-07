@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "config_file/config_file.hpp"
+#include "socket/socket.hpp"
 
 
 #endif

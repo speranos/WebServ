@@ -37,7 +37,6 @@ void	ft_add_server(std::fstream &file, Server &server)
 
 	while (std::getline(file, line) && end_serv == 1)
 	{
-
 		if(line == "}")
 		{
 			server.push_back(config_file);

@@ -1,6 +1,6 @@
 NAME = webserv
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
-SRCS = config_file/*.cpp *.cpp
+SRCS = config_file/*.cpp *.cpp socket/socket.cpp
 
 all : $(NAME)
 $(NAME): $(SRCS)

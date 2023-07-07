@@ -38,6 +38,9 @@ public:
 	void	push(location_obj &loc_obj);
 	void	ft_add_error_page(std::string &str);
 	void	getter();
+	std::string	get_port();
+	std::string	get_host();
+
 	// void	set_body_size();
 	// void	set_loc_path();
 };

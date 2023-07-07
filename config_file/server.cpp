@@ -18,6 +18,16 @@ void	Server_obj::getter()
 	}
 }
 
+std::string	Server_obj::get_port()
+{
+	return(port);
+}
+
+std::string	Server_obj::get_host()
+{
+	return(host);
+}
+
 void	Server_obj::setter(std::string &str, std::string &attr)
 {
 	if(str == "listen")
