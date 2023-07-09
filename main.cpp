@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <set>
 
 
 void sendResponse(int clientSocket, const std::string& content, const std::string& contentType) {
@@ -34,8 +35,11 @@ void printFileDescriptors(const fd_set& fds) {
 
 int main(int ac, char **av)
 {
-	fd_set my_fds, tmp_fds;
-	FD_ZERO(&my_fds);
+	fd_set read_fds, tmp_fds, write_fds, accpted_fd;
+	FD_ZERO(&read_fds);
+	FD_ZERO(&write_fds);
+	FD_ZERO(&accpted_fd);
+
 
 	Server	server;
 	if(ac != 2)
@@ -53,6 +57,8 @@ int main(int ac, char **av)
 		//handle non-blocking socket
 		//check for host and port if entred twice
 		size_t	i = 0;
+		int		sck;
+		int		MAX_FD;
 		int	sck_fd;
 		sockaddr_in	address;
 		while (i < server.size())
@@ -60,49 +66,64 @@ int main(int ac, char **av)
 			std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			// server[i++].getter();
 			sck_fd = ft_creat_sock(server[i], &address);
-			FD_SET(sck_fd, &my_fds);
+			FD_SET(sck_fd, &read_fds);
 			i++;
 		}
-		long	valread;
-		// printFileDescriptors(my_fds);
-		
-		// address.sin_port = htons(8020);
-		// address.sin_addr.s_addr = inet_addr("10.30.240.202");
-		// sck_fd = socket(AF_INET, SOCK_STREAM, 0);
-		// int opt = 1;
-		// if (setsockopt(sck_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-		// 	std::cout << "setsockopt" << std::endl;
-		// 	exit(0);
-		// }
-		// if( (bind(sck_fd, (sockaddr*)&address, sizeof(address))) < 0)
-		// {
-		// 	std::cout << "Bind Failed" << std::endl;
-		// 	exit(0);
-		// }
-		// if(listen(sck_fd, 5) < 0)
-		// {
-		// 	std::cout << "listen Failed" << std::endl;
-		// 	exit(0);	
-		// }
-	int	acc_socket;
-	(void)tmp_fds;
+	long	valread;
+	std::set<int> acceptedSockets;
+	MAX_FD = sck_fd;
+	int	acc_socket = 0;
+	sck = 0;
     while(1)
     {
+		tmp_fds = read_fds;
+		sck =  FD_SETSIZE + 1;
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-        if ((acc_socket = accept(sck_fd, (struct sockaddr *)&address, (socklen_t*)&address.sin_len ))<0)
-        {
-			std::cout << "Accept failed" << std::endl;
+		if(select(MAX_FD + 1, &tmp_fds, NULL, NULL, NULL) < 0)
+		{
+			perror("select failed");
 			exit(0);
-        }
-        char buffer[30000] = {0};
-        valread = read( acc_socket , buffer, 30000);
-        printf("%s\n",buffer ); //BUFFER IS THE REQUEST TO PARSS A KHAY SBA333333
+		}
+		while(sck <= MAX_FD)
+		{
+			if(FD_ISSET(sck, &tmp_fds))
+			{
+				if(acceptedSockets.find(acc_socket) == acceptedSockets.end())
+				{
+					std::cout << "READ: " << sck << std::endl;
+					if ((acc_socket = accept(sck, (struct sockaddr *)&address, (socklen_t*)&address.sin_len )) > 0)
+					{
+						acceptedSockets.insert(acc_socket);
+						if(MAX_FD <= acc_socket)
+							MAX_FD = acc_socket;
+						FD_SET(acc_socket, &read_fds);
+					}
+					else
+					{
+						perror("accept failed");
+						exit(0);
+					}
+				}
+				break;
+			}
+			(void)write_fds;
+			// else if(FD_ISSET(sck, &write_fds))
+			// {
+			// 	std::cout << "WRITE : " << sck << std::endl;
+			// 	break;	
+			// }
+			sck++;
+		}
+		char buffer[30000] = {0};
+		valread = read( acc_socket , buffer, 30000);
+		printf("%s\n",buffer ); //BUFFER IS THE REQUEST TO PARSS A KHAY SBA333333
 		std::string	request = buffer;
 		if (request.find(".css") != std::string::npos)
 			sendResponse(acc_socket, readFile("responsive-css-grid-nike-layout/dist/style.css"), "text/css");
 		else
-        	sendResponse(acc_socket, readFile("responsive-css-grid-nike-layout/dist/index.html"), "text/html");
+			sendResponse(acc_socket, readFile("responsive-css-grid-nike-layout/dist/index.html"), "text/html");
 		printf("------------------Hello message sent-------------------");
+		// break;
 		close(acc_socket);
     }
 	(void)valread;
@@ -114,5 +135,6 @@ int main(int ac, char **av)
 
 }
 
-//add select
-//creat a struct for the socket fd and thier vector
+//add kola socketa ou address dyalha
+//add kola socketa ou ou config data dyalha ou fd dyalha
+//update fd mnin taccepta

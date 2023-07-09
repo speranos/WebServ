@@ -22,7 +22,6 @@ int	ft_creat_sock(Server_obj &server, sockaddr_in *addr)
 		exit(0);
 	}
 	if((bind(sck_fd, (sockaddr*)addr, sizeof(sockaddr_in))) < 0) {
-		// std::cout << "Bind Failed" << std::endl;
 		perror("Bind failed");
 		exit(0);
 	}
