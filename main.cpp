@@ -32,10 +32,13 @@
 //         }
 //     }
 // }
-void	add_map(int	sck, Server_obj &server, client &clt)
+void	add_to_map(int sck, Server_obj &server, client &clt)
 {
-	std::pair<int, Server_obj &server>	pr;
+	std::pair<int, Server_obj>	pr;
 
+	pr.first = sck;
+	pr.second = server;
+	clt.insert(pr);
 }
 
 int main(int ac, char **av)
@@ -67,7 +70,7 @@ int main(int ac, char **av)
 			std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			sck_fd = ft_creat_sock(server[i], &address);
 			FD_SET(sck_fd, &read_fds);
-			add_to_map(sck, server[i], clt);
+			add_to_map(sck_fd, server[i], clt);
 			i++;
 		}
 	long	valread;
