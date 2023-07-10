@@ -8,8 +8,10 @@ int	ft_creat_sock(Server_obj &server, sockaddr_in *addr)
 {
 	int			sck_fd;
 	int			Port = std::stoi(server.get_port());
+
 	std::string	host_std = server.get_host();
 	std::cout << "host === " << host_std << std::endl;
+	std::cout << "Port === " << Port << std::endl;
 	const char	*host = host_std.c_str();
 
 	addr->sin_family = AF_INET;
