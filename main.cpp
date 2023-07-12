@@ -41,6 +41,27 @@ void	add_to_map(int sck, Server_obj &server, client &clt)
 	clt.insert(pr);
 }
 
+int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int MAX_FD, fd_set &read_fds)
+{
+	int	acc_socket = 0;
+	if ((acc_socket = accept(sck, NULL, NULL)) > 0)
+	{
+		// std::cout << "acc_sck befor: " << acc_socket << std::endl;
+		acceptedSockets.insert(acc_socket);
+		if(MAX_FD <= acc_socket)
+			MAX_FD = acc_socket + 1;
+		FD_SET(acc_socket, &read_fds);
+	}
+	else
+	{
+		perror("accept failed");
+		exit(0);
+	}
+	(void)acceptedSockets;
+	return(acc_socket);
+
+}
+
 int main(int ac, char **av)
 {
 	fd_set read_fds, tmp_fds, write_fds, accpted_fd;
@@ -76,17 +97,17 @@ int main(int ac, char **av)
 	long	valread;
 	std::set<int> acceptedSockets;
 	MAX_FD = sck_fd + 1;
-	int	acc_socket = 0;
+	// int	acc_socket = 0;
 	sck = 0;
-	char buffer_old[1024] = {0};
-	char buffer_new[1024] = {0};
-	int	flag = 0;
+	// char buffer_old[1024] = {0};
+	char buffer[1024] = {0};
+	// int	flag = 0;
     while(1)
     {
 		tmp_fds = read_fds;
 		sck = 0;
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-		if(select(MAX_FD + 1, &tmp_fds, NULL, NULL, NULL) < 0)
+		if(select(MAX_FD, &tmp_fds, NULL, NULL, NULL) < 0)
 		{
 			perror("select failed");
 			exit(0);
@@ -97,59 +118,26 @@ int main(int ac, char **av)
 			{
 				if(acceptedSockets.find(sck) == acceptedSockets.end())
 				{
-					if ((acc_socket = accept(sck, (struct sockaddr *)&address, (socklen_t*)&address.sin_len )) > 0)
-					{
-						std::cout << "acc_sck befor: " << acc_socket << std::endl;
-						acceptedSockets.insert(acc_socket);
-						if(MAX_FD <= acc_socket)
-							MAX_FD = acc_socket + 1;
-						FD_SET(acc_socket, &read_fds);
-					}
-					else
-					{
-						perror("accept failed");
-						exit(0);
-					}
+					sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_fds);
 				}
-				else
-				{
-					valread = read(sck , buffer_old, 1024);
-					printf("\n OLD CLIENT >>>>> \n");
-					if(valread == 0)
-					{
-						close(sck);
-						FD_CLR(sck, &read_fds);
-					}
-					printf("%s\n",buffer_old );
-					std::string	request = buffer_old;
-					flag = 1;
-					write(sck , "hello" , strlen("hello"));
-					printf("\n------------------Hello message sent-------------------\n");
-				}
+				//read
+				//write
 				break;
 			}
-			// if (FD_ISSET(sck, &tmp_fds) )
-			// {
-
-			// }
-			// if(FD_ISSET(sck, &write_fds))
-			// {
-			// 	std::cout << "WRITE : " << sck << std::endl;
-			// 	break;
-			// }
-
+			// if(FD_ISSET(sck, &write_fds)) // TO DOO;
 			sck++;
 			(void)write_fds;
 		}
-		if(flag == 0)
+
+		valread = read( sck , buffer, 1024);
+		std::cout << " request sie >>>>> " << valread << std::endl;
+		printf("%s\n",buffer); //BUFFER_new IS THE REQUEST TO PARSS A KHAY SBA333333
+		write(sck , "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!" , 74);
+		printf("\n------------------Hello message sent-------------------\n");
+		if(valread <= 0)
 		{
-			valread = read( acc_socket , buffer_new, 1024);
-			printf("\nNEWWWWWW CLIENT >>>>> \n");
-			std::cout << " request sie >>>>> " << valread << std::endl;
-			printf("%s\n",buffer_new ); //BUFFER_new IS THE REQUEST TO PARSS A KHAY SBA333333
-			std::string	request = buffer_new;
-			write(acc_socket , "hello" , strlen("hello"));
-			printf("\n------------------Hello message sent-------------------\n");
+			close(sck);
+			FD_CLR(sck, &read_fds);
 		}
     }
 }

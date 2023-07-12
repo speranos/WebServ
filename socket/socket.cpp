@@ -17,6 +17,7 @@ int	ft_creat_sock(Server_obj &server, sockaddr_in *addr)
 	addr->sin_family = AF_INET;
 	addr->sin_port = htons(Port);
 	addr->sin_addr.s_addr = inet_addr(host);
+	
 	sck_fd = socket(AF_INET, SOCK_STREAM, 0);
 	int opt = 1;
 	if (setsockopt(sck_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {

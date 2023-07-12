@@ -33,6 +33,8 @@ private:
 	std::string		body_size;
 	location		C_location;
 	error_page		error;
+
+
 public:
 	void	setter(std::string &str, std::string &attr);
 	void	push(location_obj &loc_obj);
@@ -40,6 +42,7 @@ public:
 	void	getter();
 	std::string	get_port();
 	std::string	get_host();
+	void		set_adrr(sockaddr_in &address);
 
 	// void	set_body_size();
 	// void	set_loc_path();

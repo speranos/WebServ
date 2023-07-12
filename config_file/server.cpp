@@ -28,6 +28,12 @@ std::string	Server_obj::get_host()
 	return(host);
 }
 
+// void	Server_obj::set_addr(sockaddr_in &address)
+// {
+// 	this->address = address;
+// }
+
+
 void	Server_obj::setter(std::string &str, std::string &attr)
 {
 	if(str == "listen")
