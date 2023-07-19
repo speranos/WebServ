@@ -14,8 +14,9 @@
 #include <string.h>
 
 #include "config_file/config_file.hpp"
-#include "socket/socket.hpp"
 typedef std::map<int, Server_obj> client;
+#include "socket/socket.hpp"
+#include "request/prequest.hpp"
 
 
 #endif

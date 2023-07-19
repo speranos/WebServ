@@ -134,6 +134,7 @@ int main(int ac, char **av)
 					ret_read = read(sck , buffer, 1024);
 					std::cout << " request sie >>>>> " << ret_read << std::endl;
 					printf("%s\n",buffer); //BUFFER_new IS THE REQUEST TO PARSS A KHAY SBA333333
+					pRequest(buffer, clt, sck);
 					if(ret_read < 1024)
 					{
 						std::cout << "send" << std::endl;

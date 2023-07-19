@@ -72,6 +72,16 @@ void	location_obj::loc_getter()
 	
 }
 
+std::string	location_obj::get_location() const
+{
+	return (this->location);
+}
+
+std::string	location_obj::get_root() const
+{
+	return (this->root);
+}
+
 ///////////////////////////////////////////////////////
 
 void	ft_add_location(std::fstream &file, Server_obj &config_file, Server server, std::string &befor, std::string &after)

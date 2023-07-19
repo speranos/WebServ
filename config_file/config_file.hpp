@@ -19,6 +19,8 @@ private:
 public:
 	void	loc_setter(std::string &str, std::string &attr);
 	void	loc_getter();
+	std::string	get_location()const;
+	std::string	get_root()const;
 	void	ft_add_methods_list(std::string &after);
 	void	ft_set_bool(std::string &befor, std::string &after);
 };
@@ -42,6 +44,7 @@ public:
 	void	getter();
 	std::string	get_port();
 	std::string	get_host();
+	std::vector<location_obj> 	get_location();
 	void		set_adrr(sockaddr_in &address);
 
 	// void	set_body_size();

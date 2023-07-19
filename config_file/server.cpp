@@ -28,6 +28,10 @@ std::string	Server_obj::get_host()
 	return(host);
 }
 
+std::vector<location_obj>	Server_obj::get_location()
+{
+	return(C_location);
+}
 // void	Server_obj::set_addr(sockaddr_in &address)
 // {
 // 	this->address = address;
