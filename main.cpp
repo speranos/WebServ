@@ -41,10 +41,11 @@ void	add_to_map(int sck, Server_obj server, client &clt)
 	clt.insert(pr);
 }
 
-int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int MAX_FD, fd_set &read_fds, client &clt)
+int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &read_fds, client &clt)
 {
 	int					acc_socket = 0;
 	client::iterator	iter;
+	Server_obj			tmp_serv;
 
 	if ((acc_socket = accept(sck, NULL, NULL)) > 0)
 	{
@@ -52,14 +53,18 @@ int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int MAX_FD, fd_set &r
 		std::cout << "\nnew_sock <<<<<< " << acc_socket << std::endl;
 		acceptedSockets.insert(acc_socket);
 		if(MAX_FD <= acc_socket)
-			MAX_FD = acc_socket + 1;
+			MAX_FD = acc_socket;
 		FD_SET(acc_socket, &read_fds);
+
 		iter = clt.find(sck);
-		add_to_map(acc_socket, iter->second, clt);
+		std::cout << "\n\nclient num ===== " << sck << std::endl;
+		std::cout << "Host of the current client ==== " << iter->second.get_host() << "\n\n" << std::endl;
+
+		tmp_serv = iter->second;
+
+		// clt.erase(iter);
+		add_to_map(acc_socket, tmp_serv, clt);
 		//To DO eares the old socket from the map
-		// if(iter != clt.end())
-		// 	clt.erase(sck);
-		// (void)clt;
 	}
 	else
 	{
@@ -73,9 +78,9 @@ int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int MAX_FD, fd_set &r
 
 int main(int ac, char **av)
 {
-	fd_set read_fds, tmp_fds, write_fds, accpted_fd;
-	FD_ZERO(&read_fds);
-	FD_ZERO(&write_fds);
+	fd_set read_fds, read_master_fds, write_fds, write_master_fds, accpted_fd;
+	FD_ZERO(&read_master_fds);
+	FD_ZERO(&write_master_fds);
 	FD_ZERO(&accpted_fd);
 
 
@@ -93,59 +98,71 @@ int main(int ac, char **av)
 		size_t	i = 0;
 		int		sck;
 		int		MAX_FD;
-		int	sck_fd;
+		int		sck_fd;
 		sockaddr_in	address;
 		while (i < server.size())
 		{
 			std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			sck_fd = ft_creat_sock(server[i], &address);
-			FD_SET(sck_fd, &read_fds);
+			FD_SET(sck_fd, &read_master_fds);
 			add_to_map(sck_fd, server[i], clt);
 			i++;
 		}
 		long	ret_read;
 		std::set<int> acceptedSockets;
-		MAX_FD = sck_fd + 1;
+		MAX_FD = sck_fd;
 		sck = 0;
 		char buffer[1024] = {0};
 
 		while(1)
 		{
-			tmp_fds = read_fds;
+			read_fds = read_master_fds;
+			write_fds = write_master_fds;
 			sck = 0;
 			printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-			if(select(MAX_FD, &tmp_fds, NULL, NULL, NULL) < 0)
+			if(select(MAX_FD + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 			{
 				perror("select failed");
 				exit(0);
 			}
-			while(sck < MAX_FD)
+			while(sck <= MAX_FD)
 			{
-				if(FD_ISSET(sck, &tmp_fds))
+				if(FD_ISSET(sck, &read_fds))
 				{
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
+						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt);
+					ret_read = read(sck , buffer, 1024);
+					std::cout << " request sie >>>>> " << ret_read << std::endl;
+					printf("%s\n",buffer); //BUFFER_new IS THE REQUEST TO PARSS A KHAY SBA333333
+					if(ret_read < 1024)
 					{
-						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_fds, clt);
+						std::cout << "send" << std::endl;
+						FD_SET(sck, &write_master_fds);
+						FD_CLR(sck, &read_master_fds);
 					}
-					//To Do
-					//read
-					//write
+					break;
+				}
+				else if(FD_ISSET(sck, &write_fds))
+				{
+					write(sck , "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!" , 74);
+					printf("\n------------------Hello message sent-------------------\n");
+					std::cout << "sck eares >>>> " << sck << std::endl;
+					close(sck);
+					acceptedSockets.erase(sck);
+					clt.erase(sck);
+					FD_CLR(sck, &write_master_fds);
 					break;
 				}
 				sck++;
-				(void)write_fds;
 			}
 
-		ret_read = read( sck , buffer, 1024);
-		std::cout << " request sie >>>>> " << ret_read << std::endl;
-		printf("%s\n",buffer); //BUFFER_new IS THE REQUEST TO PARSS A KHAY SBA333333
-		write(sck , "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!" , 74);
-		printf("\n------------------Hello message sent-------------------\n");
-		// after finishing reading set it to write_fds
-		// after we send the response
-		close(sck);
-		FD_CLR(sck, &read_fds);
-		acceptedSockets.erase(sck);
+		// write(sck , "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!" , 74);
+		// printf("\n------------------Hello message sent-------------------\n");
+		// std::cout << "sck eares >>>> " << sck << std::endl;
+		// close(sck);
+		// FD_CLR(sck, &read_master_fds);
+		// acceptedSockets.erase(sck);
+		// clt.erase(sck);
 		// clear it from write_fds set
     }
 }
