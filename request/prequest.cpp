@@ -1,18 +1,23 @@
 #include "prequest.hpp"
 
-void complete_body(std::string& input, int  file_body){
-
+void complete_body(std::string& input, request req){
+    std::string line;
+    std::istringstream stream(input);
+    (void)req;
+    while(getline(stream, line)){
+        std::cout << line << std::endl;
+    }
 }
 
 void pRequest(std::string& input, client clt, int sck){
     bool just_body = false;
-    std::string line;
     std::string method;
     std::string uri;
     std::string httpVersion;
     std::map<std::string, std::string> headers;
     std::string body;
  
+    std::string line;
     std::istringstream stream(input);
     while(getline(stream, line) && line != "\r"){
         
@@ -43,20 +48,21 @@ void pRequest(std::string& input, client clt, int sck){
             }
 
         }
-
+        unsigned long contentLength = 0;
         if (headers.find("content-length") != headers.end()){
-            unsigned long contentLength = std::stoi(headers["content-length"]);
+            contentLength = std::stoi(headers["content-length"]);
             char buf[contentLength + 1];
             stream.read(buf, contentLength);
             buf[contentLength] = '\0';// handle error
             body = buf; 
-            if(body.length() != contentLength)
-                just_body = true;
         }
+        if(body.length() < contentLength)
+            just_body = true;
     }
+
     // set all variable as a request object
+    request req;
     if(just_body){
-        request req;
         req.setMethod(method);
         req.setUri(uri);
         req.setHttpV(httpVersion);
@@ -69,7 +75,7 @@ void pRequest(std::string& input, client clt, int sck){
         req.setIsDone(true);
         std::cout << "Body: " << req.getBody() << std::endl;
     }else{
-
+        complete_body(input, req);
     }
 
 
