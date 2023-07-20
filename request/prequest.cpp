@@ -16,7 +16,6 @@ void pRequest(std::string& input, client clt, int sck){
     std::istringstream stream(input);
     while(getline(stream, line) && line != "\r"){
         
-
         // pass first line to parseFirstLine
         if (line.find("HTTP") != std::string::npos){
             std::istringstream stream(line);
@@ -44,22 +43,8 @@ void pRequest(std::string& input, client clt, int sck){
             }
 
         }
-        // get request body skip the first empty line
-        // std::string contentType;
-        // if(headers.find("content-type") != headers.end()){
-        //     contentType = headers["content-type"];
-        // }
-        // std::cout << "file type" << contentType << std::endl; 
-        // std::ofstream body("content.txt");
-    
-        
-        // extention(contentType);
+
         if (headers.find("content-length") != headers.end()){
-            // if (line == "\r\n\r\n")
-            //     ;
-
-
-
             unsigned long contentLength = std::stoi(headers["content-length"]);
             char buf[contentLength + 1];
             stream.read(buf, contentLength);
@@ -69,7 +54,6 @@ void pRequest(std::string& input, client clt, int sck){
                 just_body = true;
         }
     }
-                // stream.read(buf, req.getContentLenght());
     // set all variable as a request object
     if(just_body){
         request req;
@@ -96,9 +80,9 @@ void pRequest(std::string& input, client clt, int sck){
     // std::cout << "URL: " << req.getUri() << std::endl;
     // std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
     // // printf headers map of object request
-    for(std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it){
-        std::cout << it->first << " => " << it->second << '\n';
-    }
+    // for(std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it){
+    //     std::cout << it->first << " => " << it->second << '\n';
+    // }
     // // print request body
 }
 

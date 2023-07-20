@@ -112,7 +112,8 @@ int main(int ac, char **av)
 		std::set<int> acceptedSockets;
 		MAX_FD = sck_fd;
 		sck = 0;
-		char buffer[1025] = {0};
+		std::string buffer;
+		buffer.resize(1024);
 
 		while(1)
 		{
@@ -131,12 +132,9 @@ int main(int ac, char **av)
 				{
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt);
-					ret_read = read(sck , buffer, 1024);
+					ret_read = read(sck , (char *)buffer.c_str(), 1024);
 					std::cout << " request sie >>>>> " << ret_read << std::endl;
-					buffer[ret_read] = '\0';
-					printf("%s\n",buffer); //BUFFER_new IS THE REQUEST TO PARSS A KHAY SBA333333
-					// cast buffer to string
-					// std::string str(buffer);
+					std::cout << buffer << std::endl;
 					std::cout << "to parsing >>>>>>>>>>>" <<  std::endl;
 					std::string ft = buffer;
 					pRequest(ft, clt, sck);
