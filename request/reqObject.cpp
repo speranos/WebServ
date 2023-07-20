@@ -44,6 +44,10 @@ int request::getFd() const{
     return _fd;
 }
 
+unsigned long request::getContentLenght() const{
+    return _content_lenght;
+}
+
 bool request::getIsDone() const{
     return _isdone;
 }
@@ -84,6 +88,10 @@ void request::setFd(const int& fd){
     _fd = fd;
 }
 
+void request::setContentLenght(const unsigned long& content_lenght){
+    _content_lenght = content_lenght;
+}
+
 void request::setIsDone(const bool& isdone){
     _isdone = isdone;
 }
@@ -118,10 +126,13 @@ void request::matchLocation(std::string url, client clt, int sck){
     // std::cout << "initial_root  >> "  << root << std::endl;
     if (std::find(loc_list.begin(), loc_list.end(), url) != loc_list.end()){
         std::cout << "match" << std::endl;
+        // path = url;
+        // get the location object from cpy_location vector and set it to the request object
+
+
         
 
         // std::cout << cpy_location.get_root() << std::endl;
-        path = url;
     }else
         std::cout << "404 not found" << std::endl;
     
