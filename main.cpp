@@ -112,6 +112,7 @@ int main(int ac, char **av)
 		std::set<int> acceptedSockets;
 		MAX_FD = sck_fd;
 		sck = 0;
+		// char buffer[1025] = {0};
 		std::string buffer;
 		buffer.resize(1024);
 
@@ -132,12 +133,13 @@ int main(int ac, char **av)
 				{
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt);
-					ret_read = read(sck , (char *)buffer.c_str(), 1024);
+					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 					std::cout << " request sie >>>>> " << ret_read << std::endl;
 					std::cout << buffer << std::endl;
 					std::cout << "to parsing >>>>>>>>>>>" <<  std::endl;
-					std::string ft = buffer;
-					pRequest(ft, clt, sck);
+					pRequest(buffer, clt, sck);
+					buffer.clear();
+					buffer.resize(1024);
 					if(ret_read < 1024)
 					{
 						std::cout << "send" << std::endl;

@@ -96,6 +96,19 @@ void request::setIsDone(const bool& isdone){
     _isdone = isdone;
 }
 
+void request::clear(){
+    _method.clear();
+    _uri.clear();
+    _httpV.clear();
+    _headers.clear();
+    _body.clear();
+    _serverName.clear();
+    _locPath.clear();
+    _fd = 0;
+    _content_lenght = 0;
+    _isdone = false;
+}
+
 
 bool compare(std::string s1, std::string s2){
     return s1.size() < s2.size();

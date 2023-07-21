@@ -16,7 +16,7 @@ enum StatusCode {
 };
 
 class request{
-    private:
+    public:
         std::string _method;
         std::string _uri;
         std::string _httpV;
@@ -59,8 +59,9 @@ class request{
         void setIsDone(const bool& isdone);
         int  analyzeRequest() const;
         void matchLocation(std::string uri, client clt, int sck);
+        void clear();
 };
 
-void pRequest(std::string& buffer, client clt, int sck);
+bool pRequest(std::string& buffer, client clt, int sck);
 
 #endif
