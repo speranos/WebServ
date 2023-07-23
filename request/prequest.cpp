@@ -72,7 +72,14 @@ bool parseHeaders(std::istringstream& stream, request& req) {
 }
 
 std::string set_extension(request req){
-    std::string contentType = req.getHeaders().at("content-type");
+
+    std::map <std::string, std::string> head = req.getHeaders();
+    std::string contentType;
+    if (head.find("content-type") == head.end()) {
+        contentType = ".bin";
+    } else {
+        contentType = head["content-type"];
+    }
     std::string extension;
     size_t pos = contentType.find('\r');
     if (pos != std::string::npos) {
@@ -176,13 +183,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     // generate a unique filename for the body file depending on content type
     std::string filename;
     std::string extension = set_extension(req);
-    if (extension != ".bin"){
-        std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>extension: " << extension << std::endl;
-        filename = "request_body_" + std::to_string(sck) + extension;
-    } else {
-        filename = "request_body_" + std::to_string(sck) + ".bin";
-    }
-    // std::string filename = "request_body_" + std::to_string(sck) + ".bin"; // Generate a unique filename
+    filename = "request_body_" + std::to_string(sck) + extension;
 
     std::ofstream bodyFile(filename.c_str(), std::ios::out | std::ios::binary);
     if (!bodyFile) {
@@ -190,36 +191,31 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
         return false;
     }
     // Jump to the empty line (indicates the start of the request body)
-    std::string line;
-    while (std::getline(stream, line) && !line.empty());
+    // std::string line;
+    // while (std::getline(stream, line) && !line.empty())
+        // std::cout << line << std::endl;
     stream.clear();
     // Read the entire body and store it in the file
-    std::string bodyData;
-    // char buffer[1024];
     std::string buffer;
     buffer.resize(1024);
     unsigned long remainingBytes = req.getContentLenght();
     while (remainingBytes > 0) {
-        unsigned long bytesToRead = std::min(remainingBytes, buffer.size());
-        stream.read((char *)buffer.c_str(), bytesToRead);
-        bodyFile.write(buffer.c_str(), bytesToRead);
+        unsigned long bytesToRead = std::min(remainingBytes, (unsigned long)buffer.size());
+        stream.read(&buffer[0], bytesToRead);
+        bodyFile.write(buffer.data(), bytesToRead);
         buffer.clear();
         buffer.resize(1024);
-
         remainingBytes -= bytesToRead;
     }
-    std::cout << "body: " << std::endl;
-    for (std::string::size_type i = 0; i < buffer.size(); ++i) {
-        unsigned char ch = static_cast<unsigned char>(buffer[i]);
-        std::cout << static_cast<unsigned int>(ch) << " ";
-    }
-    // std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
 
-    // bodyFile << bodyData;
+    // Check if the entire body is successfully stored in the file
+    // std::cout << "content lenght: " << req.getContentLenght() << std::endl;
+    // std::cout << "body size: " << bodyFile.tellp() << std::endl;
     if ((unsigned long)bodyFile.tellp() == req.getContentLenght()) {
         std::cout << "Request body stored in file: " << filename << std::endl;
         bodyFile.close();
-        req.setBody(filename); // Store the filename in the request object
+        req.setBody(filename); 
+        // Store the filename in the request object
         return true;
     } else {
         // If the stored body length doesn't match content length, remove the incomplete file
@@ -255,6 +251,7 @@ bool isRequestComplete(const std::string& buffer, request& req) {
     return buffer.size() >= requestSize;
 }
 
+
 // Main parsing function
 bool pRequest(std::string& buffer, client clt, int sck) {
     static std::string requestBuffer; // Use a static buffer to accumulate the request data
@@ -263,7 +260,8 @@ bool pRequest(std::string& buffer, client clt, int sck) {
     requestBuffer += buffer;
 
     // Check if the request is complete
-    if (!isRequestComplete(requestBuffer, req) && requestBuffer.find("Content-Length") != std::string::npos) {
+    //  && requestBuffer.find("Content-Length") != std::string::npos
+    if (!isRequestComplete(requestBuffer, req)) {
         std::cout << "Incomplete request. Waiting for more data..." << std::endl;
         return false;
     }
@@ -278,7 +276,6 @@ bool pRequest(std::string& buffer, client clt, int sck) {
         std::cerr << "Error: Invalid request headers." <<  std::endl;
         return false;
     }
-
     if (req.getHeaders().find("content-length") == req.getHeaders().end()) {
         std::cerr << "Error: Content-Length header not found." << std::endl;
         return false;
