@@ -24,6 +24,7 @@ class request{
         std::string _body;
         std::string _serverName;
         std::string _locPath;
+        location_obj _loc; // location dialna
         int         _fd;
         unsigned long     _content_lenght;  
         StatusCode statusCode;
@@ -43,6 +44,7 @@ class request{
         std::string getServerName() const;
         std::string getLocPath() const;
         int         getFd() const;
+        location_obj getLoc() const;
         unsigned long         getContentLenght() const;
         bool        getIsDone() const;
 
@@ -55,6 +57,7 @@ class request{
         void setServerName(const std::string& serverName);
         void setFd(const int& fd);
         void setContentLenght(const unsigned long& content_lenght);
+        void setLoc(const location_obj& loc);
         void setLocPath(const std::string& path);
         void setIsDone(const bool& isdone);
         int  analyzeRequest() const;
@@ -62,6 +65,7 @@ class request{
         void clear();
 };
 
-bool pRequest(std::string& buffer, client clt, int sck);
+request pRequest(std::string& buffer, client clt, int sck);
+bool MethodPost(request& req, client clt);
 
 #endif

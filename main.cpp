@@ -137,7 +137,19 @@ int main(int ac, char **av)
 					std::cout << " request sie >>>>> " << ret_read << std::endl;
 					std::cout << buffer << std::endl;
 					std::cout << "to parsing >>>>>>>>>>>" <<  std::endl;
-					pRequest(buffer, clt, sck);
+					request req = pRequest(buffer, clt, sck);
+					std::cout << "Name: " << req.getServerName() << std::endl;
+					std::cout << "FD: " << req.getFd() << std::endl;
+					std::cout << "Method: " << req.getMethod() << std::endl;
+					std::cout << "URI: " << req.getUri() << std::endl;
+					std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
+					std::cout << "Headers: " << std::endl;
+					std::map<std::string, std::string> headers = req.getHeaders();
+					for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
+						std::cout << it->first << ": " << it->second << std::endl;
+					}
+					std::cout << "locPath : " << req.getLocPath() << std::endl;
+					std::cout << "location object : " << req._loc.get_location() << std::endl;
 					buffer.clear();
 					buffer.resize(1024);
 					if(ret_read < 1024)
