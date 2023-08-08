@@ -3,9 +3,16 @@
 void	location_obj::loc_setter(std::string &str, std::string &attr)
 {
 	if(str == "location")
+	{
 		location = attr;
+		// std::cout << "location >>> " << location << std::endl;
+	}
 	else if(str == "root")
+	{
 		root = attr;
+		// std::cout << "root >>> " << root << std::endl;
+
+	}
 	else if(str == "methods")
 		ft_add_methods_list(attr);
 	else if(str == "upload")

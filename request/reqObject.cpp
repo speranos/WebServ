@@ -139,23 +139,31 @@ void request::matchLocation(std::string url, client clt, int sck){
     std::vector<std::string> loc_list;
     for (int it = 0; it < loc_size; it++){
         loc_list.push_back(cpy_location[it].get_location());
-        std::cout << cpy_location[it].get_location() << std::endl;
+        // std::cout << cpy_location[it].get_location() << std::endl;
     }
     // sort all location by lenght in loc_list in descending order
     sort(loc_list.begin(), loc_list.end(), compare);
-    for(int it2 = 0; it2 < (int)loc_list.size(); it2++)
-        std::cout << "location " << it2 << ">> " << loc_list[it2] << std::endl;
     // then match the uri starting from the top of list
     std::string root;
     // std::cout << "initial_root  >> "  << root << std::endl;
     if (std::find(loc_list.begin(), loc_list.end(), url) != loc_list.end()){
         std::cout << "match" << std::endl;
+        // for(int it2 = 0; it2 < (int)loc_list.size(); it2++)
+        //     std::cout << "location " << it2 << ">> " << loc_list[it2] << std::endl;
         // get the location object from cpy_location vector
         std::vector<std::string>::iterator it = std::find(loc_list.begin(), loc_list.end(), url);
-        int index = std::distance(loc_list.begin(), it);
+        int it2;
+        for (it2 = 0; *it != cpy_location[it2].get_location(); it2++);
+
+        
+        // int index = std::distance(loc_list.begin(), it);
         // std::cout << "index >> " << index << std::endl;
-        setLoc(cpy_location[index]);
-        root = cpy_location[index].get_root();
+        setLoc(cpy_location[it2]);
+
+        // std::cout << "iteeer" << cpy_location[index + 1].get_root() << std::endl;
+        // std::cout << "url :  "  << url << std::endl;
+        root = cpy_location[it2].get_root();
+        std::cout << "root :  "  << root << std::endl;
         if (!root.empty()){
             std::string locPath = root + url;
             setLocPath(locPath);
