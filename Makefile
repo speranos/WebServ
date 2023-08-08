@@ -1,5 +1,5 @@
 NAME = webserv
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 SRCS = config_file/*.cpp *.cpp socket/socket.cpp request/*.cpp
 
 all : $(NAME)

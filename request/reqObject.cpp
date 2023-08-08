@@ -1,12 +1,12 @@
 #include "prequest.hpp"
 
-request::request(){
-    std::cout << "request constructor called" << std::endl;
-}
+// request::request(){
+//     std::cout << "request constructor called" << std::endl;
+// }
 
-request::~request(){
-    std::cout  << "destruct request" << std::endl;
-}
+// request::~request(){
+//     std::cout  << "destruct request" << std::endl;
+// }
 
 std::string request::getMethod() const{
     return _method;
@@ -159,7 +159,7 @@ void request::matchLocation(std::string url, client clt, int sck){
         if (!root.empty()){
             std::string locPath = root + url;
             setLocPath(locPath);
-            std::cout << "locPath >> " << locPath << std::endl;
+            
         }else{
             std::string locPath = url;
             setLocPath(locPath);

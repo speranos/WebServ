@@ -17,6 +17,18 @@ private:
 	bool		auto_index;
 	bool		cgi;
 public:
+	bool	get_auto_index()const
+	{
+		return (auto_index);
+	};
+	bool	get_cgi()const
+	{
+		return (cgi);
+	};
+	std::string	get_index()const
+	{
+		return (index);
+	};
 	void	loc_setter(std::string &str, std::string &attr);
 	void	loc_getter();
 	std::string	get_location()const;

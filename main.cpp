@@ -4,7 +4,8 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <set>
-
+#include "request/prequest.hpp"
+#include "response.hpp"
 
 // void sendResponse(int clientSocket, const std::string& content, const std::string& contentType) {
 // 	// std::cout << "\n\n" << content << "\n\n" << std::endl;
@@ -49,16 +50,16 @@ int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &
 
 	if ((acc_socket = accept(sck, NULL, NULL)) > 0)
 	{
-		std::cout << "\nold_sock <<<<<< " << sck << std::endl;
-		std::cout << "\nnew_sock <<<<<< " << acc_socket << std::endl;
+		// std::cout << "\nold_sock <<<<<< " << sck << std::endl;
+		// std::cout << "\nnew_sock <<<<<< " << acc_socket << std::endl;
 		acceptedSockets.insert(acc_socket);
 		if(MAX_FD <= acc_socket)
 			MAX_FD = acc_socket;
 		FD_SET(acc_socket, &read_fds);
 
 		iter = clt.find(sck);
-		std::cout << "\n\nclient num ===== " << sck << std::endl;
-		std::cout << "Host of the current client ==== " << iter->second.get_host() << "\n\n" << std::endl;
+		// std::cout << "\n\nclient num ===== " << acc_socket << std::endl;
+		// std::cout << "Host of the current client ==== " << iter->second.get_host() << "\n\n" << std::endl;
 
 		tmp_serv = iter->second;
 
@@ -83,7 +84,6 @@ int main(int ac, char **av)
 	FD_ZERO(&write_master_fds);
 	FD_ZERO(&accpted_fd);
 
-
 	Server	server;
 	client	clt;
 	if(ac != 2)
@@ -99,11 +99,13 @@ int main(int ac, char **av)
 		int		sck;
 		int		MAX_FD;
 		int		sck_fd;
+		request req;
 		sockaddr_in	address;
 		while (i < server.size())
 		{
-			std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
+			// std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			sck_fd = ft_creat_sock(server[i], &address);
+			// std::cout << "setting sock " << sck_fd <<std::endl;
 			FD_SET(sck_fd, &read_master_fds);
 			add_to_map(sck_fd, server[i], clt);
 			i++;
@@ -124,32 +126,32 @@ int main(int ac, char **av)
 			printf("\n+++++++ Waiting for new connection ++++++++\n\n");
 			if(select(MAX_FD + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 			{
+				std::cout << "reading from " << sck << std::endl;
 				perror("select failed");
 				exit(0);
 			}
+
 			while(sck <= MAX_FD)
 			{
+
 				if(FD_ISSET(sck, &read_fds))
 				{
+
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt);
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
-					std::cout << " request sie >>>>> " << ret_read << std::endl;
+
 					std::cout << buffer << std::endl;
-					std::cout << "to parsing >>>>>>>>>>>" <<  std::endl;
-					request req = pRequest(buffer, clt, sck);
-					std::cout << "Name: " << req.getServerName() << std::endl;
-					std::cout << "FD: " << req.getFd() << std::endl;
-					std::cout << "Method: " << req.getMethod() << std::endl;
-					std::cout << "URI: " << req.getUri() << std::endl;
-					std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
-					std::cout << "Headers: " << std::endl;
+
+					 req = pRequest(buffer, clt, sck);
+	
 					std::map<std::string, std::string> headers = req.getHeaders();
-					for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
-						std::cout << it->first << ": " << it->second << std::endl;
-					}
-					std::cout << "locPath : " << req.getLocPath() << std::endl;
-					std::cout << "location object : " << req._loc.get_location() << std::endl;
+					req._res = new response();
+
+					req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
+					req._res->set_get_con_type(req);
+					req._res->setContentLenght(req);
+
 					buffer.clear();
 					buffer.resize(1024);
 					if(ret_read < 1024)
@@ -162,14 +164,20 @@ int main(int ac, char **av)
 				}
 				else if(FD_ISSET(sck, &write_fds))
 				{
-					write(sck , "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!" , 74);
+					req._res->Send(sck, req);
+
 					printf("\n------------------Hello message sent-------------------\n");
-					std::cout << "sck eares >>>> " << sck << std::endl;
-					close(sck);
-					acceptedSockets.erase(sck);
-					clt.erase(sck);
-					FD_CLR(sck, &write_master_fds);
+					if(req._res->_isDone == true)
+					 {
+						std::cout << "sck eares >>>> " << sck << std::endl;
+						// std::cout << " . aaaaaaaaa" << std::endl;
+						close(sck);
+						acceptedSockets.erase(sck);
+						clt.erase(sck);
+						FD_CLR(sck, &write_master_fds);
+					 }
 					break;
+					// }
 				}
 				sck++;
 			}

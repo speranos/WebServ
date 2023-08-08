@@ -9,15 +9,18 @@
 #include <sys/types.h>
 #include "../webserv.hpp"
 
+//#include "../response.hpp"
+
+class response;
 enum StatusCode {
     OK = 200,
     NOT_FOUND = 404,
     INTERNAL_SERVER_ERROR = 500
 };
-
 class request{
     public:
         std::string _method;
+        response *_res;
         std::string _uri;
         std::string _httpV;
         std::map<std::string, std::string> _headers;
@@ -29,11 +32,19 @@ class request{
         unsigned long     _content_lenght;  
         StatusCode statusCode;
         bool _isdone;
+        // response GetRes() const 
+        // {
+        //     return _res;
+        // };
 
 
     public:
-        request();
-        ~request();
+        request() {
+        //_res = new response();
+    }
+        ~request(){
+          //  delete _res;
+        };
 
         std::string getMethod() const;
         std::string getUri() const;
@@ -69,3 +80,4 @@ request pRequest(std::string& buffer, client clt, int sck);
 bool MethodPost(request& req, client clt);
 
 #endif
+

@@ -49,6 +49,7 @@ std::string set_extension(request req){
         contentType = ".bin";
     } else {
         contentType = head["content-type"];
+        std::cout << "Content type =============================>>>"<<contentType << std::endl;
     }
     std::string extension;
     size_t pos = contentType.find('\r');
@@ -249,6 +250,14 @@ request pRequest(std::string& buffer, client clt, int sck) {
         std::cerr << "Error: Invalid request headers." <<  std::endl;
         return req;
     }
+    if (req.analyzeRequest()){
+        std::cout << "Request is valid" << std::endl;
+        req.matchLocation(req.getUri() ,clt, sck);
+    }
+    
+    std::map<int, Server_obj>::iterator myserver = clt.find(sck);
+    req.setServerName(myserver->second.get_host());
+    req.setFd(sck);
 
     if(req.getMethod() == "POST"){
         if (req.getHeaders().find("content-length") == req.getHeaders().end()) {
@@ -259,10 +268,11 @@ request pRequest(std::string& buffer, client clt, int sck) {
             return req;
         }
     }
-    // else if(req.getMethod() == "GET")
-    // {
-    //     //hna kha tkhdam get
-    // }
+
+    else if(req.getMethod() == "GET")
+    {
+       std::cout << "get_index=================>"<< req._loc.get_index() << std::endl;
+    }
     // else if(req.getMethod() == "DELETE")
     // {
     //     //hna delete
@@ -273,14 +283,7 @@ request pRequest(std::string& buffer, client clt, int sck) {
     //     return req;
     // }
 
-    if (req.analyzeRequest()){
-        std::cout << "Request is valid" << std::endl;
-        req.matchLocation(req.getUri() ,clt, sck);
-    }
     // set the server name
-    std::map<int, Server_obj>::iterator myserver = clt.find(sck);
-    req.setServerName(myserver->second.get_host());
-    req.setFd(sck);
 
     // Now you have all the information in the 'req' object.
     // You can use the getter functions to access the parsed data.
@@ -294,7 +297,6 @@ request pRequest(std::string& buffer, client clt, int sck) {
     // for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
     //     std::cout << it->first << ": " << it->second << std::endl;
     // }
-
     // std::cout << "locPath : " << req.getLocPath() << std::endl;
 
     // if (MethodPost(req, clt);
