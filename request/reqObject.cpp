@@ -123,7 +123,7 @@ bool compare(std::string s1, std::string s2){
 }
 
 typedef std::vector<location_obj> location;
-void request::matchLocation(std::string url, client clt, int sck){
+void request::matchLocation(std::string url, client_config clt, int sck){
     // match request url with location
     // setLocPath(std:npos);
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);

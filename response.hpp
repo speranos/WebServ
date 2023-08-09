@@ -8,7 +8,9 @@
 #include "webserv.hpp"
 //  class request;
 #define BUFF_SIZE 30000
-#include "request/prequest.hpp"
+// #include "request/prequest.hpp"
+class request;
+
 class response
 {
     public:

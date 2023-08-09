@@ -227,7 +227,7 @@ bool isRequestComplete(const std::string& buffer, request& req) {
 
 
 // Main parsing function
-request pRequest(std::string& buffer, client clt, int sck) {
+request pRequest(std::string& buffer, client_config clt, int sck) {
     static std::string requestBuffer; // Use a static buffer to accumulate the request data
     request req; // Use a static request object to store the parsed data across calls
 

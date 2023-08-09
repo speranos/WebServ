@@ -47,7 +47,7 @@ int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &
 	int					acc_socket = 0;
 	client_config::iterator	iter;
 	Server_obj			tmp_serv;
-	new_client			client;
+	// new_client			client;
 
 	if ((acc_socket = accept(sck, NULL, NULL)) > 0)
 	{
@@ -152,7 +152,7 @@ int main(int ac, char **av)
 					std::cout <<  "releated sck >>>>>>>>>>> " << sck << std::endl;
 
 					 req = pRequest(buffer, clt_config, sck);
-					 ft_add_client(sck, new_client, req, clt);
+					 ft_add_client(sck, new_clt, req, clt);
 	
 					std::map<std::string, std::string> headers = req.getHeaders();
 					req._res = new response();
