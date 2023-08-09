@@ -33,7 +33,7 @@
 //         }
 //     }
 // }
-void	add_to_map(int sck, Server_obj server, client &clt)
+void	add_to_map(int sck, Server_obj server, client_config &clt)
 {
 	std::pair<int, Server_obj>	pr;
 
@@ -42,38 +42,41 @@ void	add_to_map(int sck, Server_obj server, client &clt)
 	clt.insert(pr);
 }
 
-int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &read_fds, client &clt)
+int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &read_fds, client_config &clt)
 {
 	int					acc_socket = 0;
-	client::iterator	iter;
+	client_config::iterator	iter;
 	Server_obj			tmp_serv;
+	new_client			client;
 
 	if ((acc_socket = accept(sck, NULL, NULL)) > 0)
 	{
-		// std::cout << "\nold_sock <<<<<< " << sck << std::endl;
-		// std::cout << "\nnew_sock <<<<<< " << acc_socket << std::endl;
 		acceptedSockets.insert(acc_socket);
 		if(MAX_FD <= acc_socket)
 			MAX_FD = acc_socket;
 		FD_SET(acc_socket, &read_fds);
-
 		iter = clt.find(sck);
-		// std::cout << "\n\nclient num ===== " << acc_socket << std::endl;
-		// std::cout << "Host of the current client ==== " << iter->second.get_host() << "\n\n" << std::endl;
-
 		tmp_serv = iter->second;
-
-		// clt.erase(iter);
 		add_to_map(acc_socket, tmp_serv, clt);
-		//To DO eares the old socket from the map
 	}
 	else
 	{
 		perror("accept failed");
 		exit(0);
 	}
-	// (void)acceptedSockets;
 	return(acc_socket);
+
+}
+
+void	ft_add_client(int sck, new_client &new_clt, request &rq, client &clt)
+{
+	clt.sett_rq_object(rq);
+	// clt.sett_res_obj(res);
+	std::pair<int, client>	pr;
+
+	pr.first = sck;
+	pr.second = clt;
+	new_clt.insert(pr);
 
 }
 
@@ -85,7 +88,7 @@ int main(int ac, char **av)
 	FD_ZERO(&accpted_fd);
 
 	Server	server;
-	client	clt;
+	client_config	clt_config;
 	if(ac != 2)
 	{
 		std::cout << "ERROR: More or less then the argument requierd !" << std::endl;
@@ -101,13 +104,16 @@ int main(int ac, char **av)
 		int		sck_fd;
 		request req;
 		sockaddr_in	address;
+		new_client	new_clt;
+		client		clt;
+
 		while (i < server.size())
 		{
 			// std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			sck_fd = ft_creat_sock(server[i], &address);
 			// std::cout << "setting sock " << sck_fd <<std::endl;
 			FD_SET(sck_fd, &read_master_fds);
-			add_to_map(sck_fd, server[i], clt);
+			add_to_map(sck_fd, server[i], clt_config);
 			i++;
 		}
 		long	ret_read;
@@ -138,12 +144,15 @@ int main(int ac, char **av)
 				{
 
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
-						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt);
+						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 
 					std::cout << buffer << std::endl;
 
-					 req = pRequest(buffer, clt, sck);
+					std::cout <<  "releated sck >>>>>>>>>>> " << sck << std::endl;
+
+					 req = pRequest(buffer, clt_config, sck);
+					 ft_add_client(sck, new_client, req, clt);
 	
 					std::map<std::string, std::string> headers = req.getHeaders();
 					req._res = new response();
@@ -156,7 +165,8 @@ int main(int ac, char **av)
 					buffer.resize(1024);
 					if(ret_read < 1024)
 					{
-						std::cout << "send" << std::endl;
+						std::cout << "ret read >>> " << ret_read << std::endl;
+
 						FD_SET(sck, &write_master_fds);
 						FD_CLR(sck, &read_master_fds);
 					}
@@ -173,7 +183,7 @@ int main(int ac, char **av)
 						// std::cout << " . aaaaaaaaa" << std::endl;
 						close(sck);
 						acceptedSockets.erase(sck);
-						clt.erase(sck);
+						clt_config.erase(sck);
 						FD_CLR(sck, &write_master_fds);
 					 }
 					break;

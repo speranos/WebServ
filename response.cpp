@@ -164,10 +164,10 @@ std::string response::FinalString(request &req)
     {
        // std::cout << "headerSent===============>"<< this->headerSent << std::endl;
         if(this->headerSent == false){
-        res = req._res->getStatusCode();
-        res.append(req._res->getContentType());
-        res.append(req._res->getContentLenght());
-        res.append("\r\n");
+       res = req._res->getStatusCode();
+       res.append(req._res->getContentType());
+       res.append(req._res->getContentLenght());
+       res.append("\r\n");
         this->headerSent = true;  
         //std::cout << "headersent ============> : " << this->headerSent << std::endl;  
         }
@@ -180,12 +180,13 @@ std::string response::FinalString(request &req)
            // std::cout << "-------------------------------------------------------------------" << std::endl;
             std::streamsize bytesRead = this->file.gcount();
 
+            std::cout << "bytesRead >>>>>>>>>>> " << bytesRead << std::endl;
              if(bytesRead > 0)
              { 
                 std::string chunk = std::string(this->buffer,bytesRead);
-                //std::cout << "chunk size : " << chunk.size() << std::endl;
+                // std::cout << "chunk size : " << chunk.size() << std::endl;
+                // std::cout << chunk << std::endl;
                  res.append(chunk);
-				//this->file.close();
 				this->isfileopen(true);
             }
             else
@@ -197,17 +198,28 @@ std::string response::FinalString(request &req)
             }
         }
     }
+    // std::cout << res << std::endl;
     return res;
 }
 
 void response::Send(int sck,request &req)
  {
+    std::cout << "body done ::" << req._res->_isDone << std::endl;
      if(req._res->_isDone == false){
     std::string res = req._res->FinalString(req);
     //std::cout << "res : " << res << std::endl;
-
-           send(sck,res.c_str(), res.size(), 0);}
-           std::cout << "send to >>>>>>>>>> " << sck << std::endl;
+            int bytes_sent = send(sck,res.c_str(), res.size(), 0);
+            std::cout << "send to >>>>>>>>>> " << sck << std::endl;
+            if (bytes_sent == -1)
+                exit(69);
+            // while ((size_t)bytes_sent <  res.size())
+            // {
+            //     std::cout << "send again " << std::endl;
+            //     res = res.substr(bytes_sent, 0);
+            //     bytes_sent = send(sck,res.c_str(), res.size(), 0);
+            // }
+           }
+           
         //    free(this->buffer);
    
    
@@ -256,5 +268,5 @@ void response::Send(int sck,request &req)
 //  std::string res = "HTTP/1.1 200 OK\r\n"
 //                       "Content-Type: text/html\r\n"
 //                       "Content-Length: " + std::to_string(htmlContent.size()) + "\r\n\r\n" + htmlContent;
-//             std::cout << res << std::endl;
 //             //(void)sck;}
+//             std::cout << res << std::endl;

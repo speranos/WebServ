@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include "webserv.hpp"
 //  class request;
-#define BUFF_SIZE 6000 
+#define BUFF_SIZE 30000
 #include "request/prequest.hpp"
 class response
 {
