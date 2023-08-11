@@ -103,6 +103,7 @@ int main(int ac, char **av)
 		int		MAX_FD;
 		int		sck_fd;
 		request req;
+		request rq;
 		sockaddr_in	address;
 		new_client	new_clt;
 		client		clt;
@@ -151,9 +152,13 @@ int main(int ac, char **av)
 
 					std::cout <<  "releated sck >>>>>>>>>>> " << sck << std::endl;
 
-					 req = pRequest(buffer, clt_config, sck);
-					 ft_add_client(sck, new_clt, req, clt);
-	
+					 rq = pRequest(buffer, clt_config, sck);
+					 ft_add_client(sck, new_clt, rq, clt);
+					std::map<int, client>::iterator it;
+					it = new_clt.find(sck);
+					it->second.sett_rq_object(rq);
+					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
+					req = it->second.get_rq_object();
 					std::map<std::string, std::string> headers = req.getHeaders();
 					req._res = new response();
 
@@ -166,7 +171,6 @@ int main(int ac, char **av)
 					if(ret_read < 1024)
 					{
 						std::cout << "ret read >>> " << ret_read << std::endl;
-
 						FD_SET(sck, &write_master_fds);
 						FD_CLR(sck, &read_master_fds);
 					}
@@ -176,12 +180,13 @@ int main(int ac, char **av)
 				{
 					req._res->Send(sck, req);
 
-					printf("\n------------------Hello message sent-------------------\n");
+					// printf("\n------------------Hello message sent-------------------\n");
 					if(req._res->_isDone == true)
 					 {
-						std::cout << "sck eares >>>> " << sck << std::endl;
+						std::cout << "sck erase >>>> " << sck << std::endl;
 						// std::cout << " . aaaaaaaaa" << std::endl;
 						close(sck);
+						new_clt.erase(sck);
 						acceptedSockets.erase(sck);
 						clt_config.erase(sck);
 						FD_CLR(sck, &write_master_fds);
