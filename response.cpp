@@ -174,7 +174,7 @@ std::string response::FinalString(request &req)
         
         if(this->headerSent == true && !this->_isDone){
             
-            this->file.read(this->buffer, sizeof(this->buffer));
+            this->file.read(this->buffer, 1024);
            // std::cout << "-------------------------------------------------------------------" << std::endl;
             // std::cout << "buffer : " << this->buffer << std::endl;
            // std::cout << "-------------------------------------------------------------------" << std::endl;
@@ -198,18 +198,20 @@ std::string response::FinalString(request &req)
             }
         }
     }
+    std::cout << "HIIII\n";
     // std::cout << res << std::endl;
     return res;
 }
 
 void response::Send(int sck,request &req)
  {
-    std::cout << "body done ::" << req._res->_isDone << std::endl;
+    // std::cout << "body done ::" << req._res->_isDone << std::endl;
      if(req._res->_isDone == false){
     std::string res = req._res->FinalString(req);
-    //std::cout << "res : " << res << std::endl;
+            // std::cout << "res : " << res << std::endl;
             int bytes_sent = send(sck,res.c_str(), res.size(), 0);
             std::cout << "send to >>>>>>>>>> " << sck << std::endl;
+            std::cout << "len is : " << bytes_sent << std::endl;
             if (bytes_sent == -1)
                 exit(69);
             // while ((size_t)bytes_sent <  res.size())

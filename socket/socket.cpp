@@ -28,7 +28,7 @@ int	ft_creat_sock(Server_obj &server, sockaddr_in *addr)
 		perror("Bind failed");
 		exit(0);
 	}
-	if(listen(sck_fd, 5) < 0)
+	if(listen(sck_fd, FD_SETSIZE) < 0)
 	{
 		std::cout << "listen Failed" << std::endl;
 		exit(0);	

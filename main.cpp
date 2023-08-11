@@ -6,7 +6,7 @@
 #include <set>
 #include "request/prequest.hpp"
 #include "response.hpp"
-
+#include <signal.h>
 // void sendResponse(int clientSocket, const std::string& content, const std::string& contentType) {
 // 	// std::cout << "\n\n" << content << "\n\n" << std::endl;
 //     std::string response =
@@ -102,6 +102,7 @@ int main(int ac, char **av)
 		int		sck;
 		int		MAX_FD;
 		int		sck_fd;
+		int it_sck;
 		request req;
 		request rq;
 		sockaddr_in	address;
@@ -112,7 +113,7 @@ int main(int ac, char **av)
 		{
 			// std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			sck_fd = ft_creat_sock(server[i], &address);
-			// std::cout << "setting sock " << sck_fd <<std::endl;
+			std::cout << "setting sock " << sck_fd <<std::endl;
 			FD_SET(sck_fd, &read_master_fds);
 			add_to_map(sck_fd, server[i], clt_config);
 			i++;
@@ -124,6 +125,7 @@ int main(int ac, char **av)
 		// char buffer[1025] = {0};
 		std::string buffer;
 		buffer.resize(1024);
+		signal(SIGPIPE, SIG_IGN);
 
 		while(1)
 		{
@@ -150,13 +152,17 @@ int main(int ac, char **av)
 
 					std::cout << buffer << std::endl;
 
+					std::cout << "ret_read >>>>> " << ret_read << std::endl;
+
 					std::cout <<  "releated sck >>>>>>>>>>> " << sck << std::endl;
 
 					 rq = pRequest(buffer, clt_config, sck);
 					 ft_add_client(sck, new_clt, rq, clt);
-					std::map<int, client>::iterator it;
+					new_client::iterator it;
 					it = new_clt.find(sck);
 					it->second.sett_rq_object(rq);
+					std::cout << "it->forst >>>>>>>"<< it->first << std::endl;
+					it_sck = it->first;
 					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
 					req = it->second.get_rq_object();
 					std::map<std::string, std::string> headers = req.getHeaders();
@@ -171,25 +177,26 @@ int main(int ac, char **av)
 					if(ret_read < 1024)
 					{
 						std::cout << "ret read >>> " << ret_read << std::endl;
-						FD_SET(sck, &write_master_fds);
-						FD_CLR(sck, &read_master_fds);
+						FD_SET(it_sck, &write_master_fds);
+						FD_CLR(it_sck, &read_master_fds);
 					}
 					break;
 				}
 				else if(FD_ISSET(sck, &write_fds))
 				{
-					req._res->Send(sck, req);
+					req._res->Send(it_sck, req);
 
 					// printf("\n------------------Hello message sent-------------------\n");
+					std::cout << "send f sck < >>>>>>>> " << sck << std::endl;
 					if(req._res->_isDone == true)
 					 {
 						std::cout << "sck erase >>>> " << sck << std::endl;
 						// std::cout << " . aaaaaaaaa" << std::endl;
-						close(sck);
-						new_clt.erase(sck);
-						acceptedSockets.erase(sck);
-						clt_config.erase(sck);
-						FD_CLR(sck, &write_master_fds);
+						FD_CLR(it_sck, &write_master_fds);
+						close(it_sck);
+						new_clt.erase(it_sck);
+						acceptedSockets.erase(it_sck);
+						clt_config.erase(it_sck);
 					 }
 					break;
 					// }
