@@ -186,6 +186,7 @@ void request::matchLocation(std::string url, client_config clt, int sck){
                 std::cout << "root :  "  << root << std::endl;
                 locPath = root + tmp_url;
                 setLocPath(locPath);
+                // std::cout << "UUUURLLLLL >>>>> " << getLocPath() << std::endl;
                 break;
                 
             }else{
@@ -205,12 +206,12 @@ void request::matchLocation(std::string url, client_config clt, int sck){
             break;
 
     }
-    if (url.empty() || url == "/"){
-        root = "/";
-        // std::cout << "root :  "  << root << std::endl;
-        locPath = root;
-        setLocPath(locPath);
-    }
+    // if (url.empty() || url == "/"){
+    //     root = "/";
+    //     // std::cout << "root :  "  << root << std::endl;
+    //     locPath = root;
+    //     setLocPath(locPath);
+    // }
        
 }
 
