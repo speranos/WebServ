@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include "webserv.hpp"
 //  class request;
-#define BUFF_SIZE 30000
+#define BUFF_SIZE 66000
 // #include "request/prequest.hpp"
 class request;
 
@@ -17,8 +17,9 @@ class response
      char buffer[BUFF_SIZE];
       std::ifstream file;
       std::string _buffer;
+      std::string _body;
+      std::string _autoindex;
      bool _isOpen;
-     int fd;
     bool            headerSent;
     std::string     _headers;
     std::string     _Content_Lenght;
@@ -43,16 +44,17 @@ class response
     std::string get_Body();
     int get_file_size(); 
     void Send(int sck,request &req);
+    void    set_body(std::string body);
+    std::string get_body();
+    void    autoindex(request &req);
+    std::string get_autoindex();
     void setContentType(request &req)
     {
         std::map<std::string, std::string> con_type = req.getHeaders();
         std::string Content_type =  con_type["content-type"];
         _Content_Type += "Content-type: " + Content_type + "\r\n";
     };
-    int get_fd()
-    {
-        return this->fd;
-    };
+
     std::string getContentLenght()
     {
         return _Content_Lenght;
@@ -89,7 +91,7 @@ class response
 // }
 
 
-void    GetMethod(location_obj &location,request &req);
+void    GetMethod(request &req);
  void    SendResponse(int sck);
 };
 #endif

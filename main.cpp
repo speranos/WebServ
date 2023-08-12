@@ -132,7 +132,7 @@ int main(int ac, char **av)
 			read_fds = read_master_fds;
 			write_fds = write_master_fds;
 			sck = 0;
-			printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+			//printf("\n+++++++ Waiting for new connection ++++++++\n\n");
 			if(select(MAX_FD + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 			{
 				std::cout << "reading from " << sck << std::endl;
@@ -150,12 +150,7 @@ int main(int ac, char **av)
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 
-					std::cout << buffer << std::endl;
-
-					std::cout << "ret_read >>>>> " << ret_read << std::endl;
-
-					std::cout <<  "releated sck >>>>>>>>>>> " << sck << std::endl;
-
+					//std::cout << buffer << std::endl;
 					 rq = pRequest(buffer, clt_config, sck);
 					 ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
@@ -166,12 +161,17 @@ int main(int ac, char **av)
 					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
 					req = it->second.get_rq_object();
 					std::map<std::string, std::string> headers = req.getHeaders();
+					// for(std::map<std::string, std::string>::iterator ita = headers.begin(); ita != headers.end(); ita++)
+					// {
+					// 	std::cout << ita->first << " : " << ita->second << std::endl;
+					// }
 					req._res = new response();
 
-					req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
-					req._res->set_get_con_type(req);
-					req._res->setContentLenght(req);
-
+					// req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
+					// req._res->set_get_con_type(req);
+					// req._res->setContentLenght(req);
+					if(req.getMethod() == "GET")
+						req._res->GetMethod(req);
 					buffer.clear();
 					buffer.resize(1024);
 					if(ret_read < 1024)
@@ -182,15 +182,14 @@ int main(int ac, char **av)
 					}
 					break;
 				}
-				else if(FD_ISSET(sck, &write_fds))
+				else if(FD_ISSET(it_sck, &write_fds))
 				{
 					req._res->Send(it_sck, req);
 
 					// printf("\n------------------Hello message sent-------------------\n");
-					std::cout << "send f sck < >>>>>>>> " << sck << std::endl;
 					if(req._res->_isDone == true)
 					 {
-						std::cout << "sck erase >>>> " << sck << std::endl;
+						std::cout << "sck erase >>>> " << it_sck << std::endl;
 						// std::cout << " . aaaaaaaaa" << std::endl;
 						FD_CLR(it_sck, &write_master_fds);
 						close(it_sck);
@@ -199,19 +198,9 @@ int main(int ac, char **av)
 						clt_config.erase(it_sck);
 					 }
 					break;
-					// }
 				}
 				sck++;
 			}
-
-		// write(sck , "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!" , 74);
-		// printf("\n------------------Hello message sent-------------------\n");
-		// std::cout << "sck eares >>>> " << sck << std::endl;
-		// close(sck);
-		// FD_CLR(sck, &read_master_fds);
-		// acceptedSockets.erase(sck);
-		// clt.erase(sck);
-		// clear it from write_fds set
     }
 }
 	catch(std::exception &e)
