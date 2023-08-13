@@ -126,7 +126,7 @@ void    response::set_get_con_type(request &req)
         // std::map<std::string, std::string> con_type = req.getHeaders();
         // std::string Content_type =  con_type["content-length"];
         // _Content_Lenght += "Content-Length: " + Content_type + "\r\n";
-        std::ifstream file(req.getLocPath(), std::ios::binary);
+        std::ifstream file(req.getLocPath().c_str(), std::ios::binary);
         file.seekg(0, std::ios::end);
         this->file_size = file.tellg();
         std::cout << "file size is : " << file_size << std::endl;
