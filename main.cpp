@@ -83,12 +83,13 @@ void	ft_add_client(int sck, new_client &new_clt, request &rq, client &clt)
 int main(int ac, char **av)
 {
 	fd_set read_fds, read_master_fds, write_fds, write_master_fds, accpted_fd;
+	Server	server;
+	client_config	clt_config;
+
 	FD_ZERO(&read_master_fds);
 	FD_ZERO(&write_master_fds);
 	FD_ZERO(&accpted_fd);
 
-	Server	server;
-	client_config	clt_config;
 	if(ac != 2)
 	{
 		std::cout << "ERROR: More or less then the argument requierd !" << std::endl;
@@ -125,14 +126,14 @@ int main(int ac, char **av)
 		// char buffer[1025] = {0};
 		std::string buffer;
 		buffer.resize(1024);
-		signal(SIGPIPE, SIG_IGN);
+		// signal(SIGPIPE, SIG_IGN);
 
 		while(1)
 		{
 			read_fds = read_master_fds;
 			write_fds = write_master_fds;
 			sck = 0;
-			//printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+			printf("\n+++++++ Waiting for new connection ++++++++\n\n");
 			if(select(MAX_FD + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 			{
 				std::cout << "reading from " << sck << std::endl;
@@ -150,7 +151,7 @@ int main(int ac, char **av)
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 
-					//std::cout << buffer << std::endl;
+					std::cout << buffer << std::endl;
 					 rq = pRequest(buffer, clt_config, sck);
 					 ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
@@ -186,7 +187,7 @@ int main(int ac, char **av)
 				{
 					req._res->Send(it_sck, req);
 
-					// printf("\n------------------Hello message sent-------------------\n");
+					printf("\n------------------Hello message sent-------------------\n");
 					if(req._res->_isDone == true)
 					 {
 						std::cout << "sck erase >>>> " << it_sck << std::endl;

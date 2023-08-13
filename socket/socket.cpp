@@ -7,7 +7,7 @@
 int	ft_creat_sock(Server_obj &server, sockaddr_in *addr)
 {
 	int			sck_fd;
-	int			Port = std::stoi(server.get_port());
+	int			Port = atoi(server.get_port().c_str());
 
 	std::string	host_std = server.get_host();
 	std::cout << "host === " << host_std << std::endl;

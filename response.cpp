@@ -203,7 +203,7 @@ void response::Send(int sck,request &req)
  {
      if(req._res->_isDone == false){
     std::string res = req._res->FinalString(req);
-    std::cout << "res >>>>>>>>> " << res << std::endl;
+    // std::cout << "res >>>>>>>>> " << res << std::endl;
              send(sck,res.c_str(), res.size(), 0);
      }
 }
