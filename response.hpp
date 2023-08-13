@@ -94,4 +94,7 @@ class response
 void    GetMethod(request &req);
  void    SendResponse(int sck);
 };
+
+
+
 #endif

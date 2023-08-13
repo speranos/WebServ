@@ -1,5 +1,13 @@
 #include "response.hpp"
 
+
+std::string to_str(int  num)
+{
+    std::ostringstream conv;
+    conv << num;
+    return(conv.str());
+}
+
 void   response::GetMethod(request &req)
 {
     // DIR *dir = opendir(req.getLocPath().c_str());
@@ -123,7 +131,7 @@ void    response::set_get_con_type(request &req)
         this->file_size = file.tellg();
         std::cout << "file size is : " << file_size << std::endl;
         file.close();
-        this->_Content_Lenght += "Content-Length: " + std::to_string(file_size) + "\r\n";
+        this->_Content_Lenght += "Content-Length: " + to_str(file_size) + "\r\n";
     };
 int response::get_file_size()
 {
@@ -240,7 +248,7 @@ void    response::autoindex(request &req)
     }
     this->_autoindex = "HTTP/1.1 200 OK\r\n";
     this->_autoindex += "Content-Type: text/html\r\n";
-    this->_autoindex += "Content-Length: " + std::to_string(index.size()) + "\r\n\r\n";
+    this->_autoindex += "Content-Length: " + to_str(index.size()) + "\r\n\r\n";
     this->_autoindex += "<html><body><h1>Directory Listing</h1><ul>" + index + "</ul></body></html>";
     this->bodyisDone(true);
 }

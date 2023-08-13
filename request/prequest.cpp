@@ -1,5 +1,12 @@
 #include "prequest.hpp"
 
+std::string to_str_preq(int  num)
+{
+    std::ostringstream conv;
+    conv << num;
+    return(conv.str());
+}
+
 bool parseRequestLine(std::istringstream& stream, request& req) {
     std::string line;
     if (!std::getline(stream, line) || line.empty())
@@ -158,7 +165,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     // generate a unique filename for the body file depending on content type
     std::string filename;
     std::string extension = set_extension(req);
-    filename = "request_body_" + std::to_string(sck) + extension;
+    filename = "request_body_" + to_str_preq(sck) + extension;
 
     std::ofstream bodyFile(filename.c_str(), std::ios::out | std::ios::binary);
     if (!bodyFile) {
