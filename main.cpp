@@ -61,7 +61,7 @@ int	ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &
 	}
 	else
 	{
-		perror("accept failed");
+		perror("accept failed"); 
 		exit(0);
 	}
 	return(acc_socket);

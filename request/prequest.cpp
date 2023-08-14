@@ -1,4 +1,5 @@
 #include "prequest.hpp"
+#include <sys/stat.h>
 
 std::string to_str_preq(int  num)
 {
@@ -231,7 +232,18 @@ bool isRequestComplete(const std::string& buffer, request& req) {
     return buffer.size() >= requestSize;
 }
 
+bool fileExists(const char* path) {
+    struct stat fileInfo;
+    return (stat(path, &fileInfo) == 0);
+}
 
+bool writePerm(const char* filename)
+{
+    struct stat fileStat;
+    if (stat(filename, &fileStat) != 0)
+        return false;
+    return (fileStat.st_mode & S_IWUSR) != 0;
+}
 
 // Main parsing function
 request pRequest(std::string& buffer, client_config clt, int sck) {
@@ -280,10 +292,51 @@ request pRequest(std::string& buffer, client_config clt, int sck) {
     {
        std::cout << "get_index=================>"<< req._loc.get_index() << std::endl;
     }
-    // else if(req.getMethod() == "DELETE")
-    // {
-    //     //hna delete
-    // }
+    else if(req.getMethod() == "DELETE")
+    {
+        std::string myLocation = req.getLocPath();
+        std::cout << "=====>" << myLocation << std::endl;
+        struct stat fileInfo;
+
+        // Check if it's a directory
+        if (stat(myLocation.c_str(), &fileInfo) == 0)
+        {
+            // if yes
+            if (S_ISDIR(fileInfo.st_mode))
+            {
+                if (myLocation[myLocation.size() - 1] != '/')
+                    std::cout << "409 Conflict" << std::endl;
+                else
+                    std::cout << "403 Permission denied" << std::endl;
+            }
+            // if it's a file
+            else
+            {
+                // Check if the file you want to delete exists be3da
+                if (fileExists(myLocation.c_str()))
+                {
+                    // Check if it has write permission
+                    if (writePerm(myLocation.c_str()))
+                    {
+                        // Delete the file
+                        int deleteResult = std::remove(myLocation.c_str());
+                        if (deleteResult == 0)
+                            // Successfully deleted
+                            std::cout << "204 No content" << std::endl;
+                        else
+                            // Error occured during the operation of deleting
+                            std::cout << "500 Internal Server Error" << std::endl;
+                    }
+                    else
+                        std::cout << "403 Permission denied" << std::endl;
+                }
+                else
+                {
+                    std::cout << "404 Not Found" << std::endl;
+                }
+            }
+        }
+    }
     // else
     // {
     //     std::cerr << "Error: Invalid request method." << std::endl;

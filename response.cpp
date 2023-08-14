@@ -1,4 +1,5 @@
 #include "response.hpp"
+#include <sys/stat.h>
 
 
 std::string to_str(int  num)
@@ -7,6 +8,64 @@ std::string to_str(int  num)
     conv << num;
     return(conv.str());
 }
+
+// bool fileExists(const char* path) {
+//     struct stat fileInfo;
+//     return (stat(path, &fileInfo) == 0);
+// }
+
+// bool writePerm(const char* filename)
+// {
+//     struct stat fileStat;
+//     if (stat(filename, &fileStat) != 0)
+//         return false;
+//     return (fileStat.st_mode & S_IWUSR) != 0;
+// }
+
+// void    response::deleteMethod(request &req)
+// {
+//     std::string myLocation = req.getLocPath();
+//     std::cout << "=====>" << myLocation << std::endl;
+//     struct stat fileInfo;
+//     // Check if it's a directory
+//     if (stat(myLocation.c_str(), &fileInfo) == 0)
+//     {
+//         // if yes
+//         if (S_ISDIR(fileInfo.st_mode))
+//         {
+//             if (myLocation[myLocation.size() - 1] != '/')
+//                 std::cout << "409 Conflict" << std::endl;
+//             else
+//                 std::cout << "403 Permission denied" << std::endl;
+//         }
+//         // if it's a file
+//         else
+//         {
+//             // Check if the file you want to delete exists be3da
+//             if (fileExists(myLocation.c_str()))
+//             {
+//                 // Check if it has write permission
+//                 if (writePerm(myLocation.c_str()))
+//                 {
+//                     // Delete the file
+//                     int deleteResult = std::remove(myLocation.c_str());
+//                     if (deleteResult == 0)
+//                         // Successfully deleted
+//                         std::cout << "204 No content" << std::endl;
+//                     else
+//                         // Error occured during the operation of deleting
+//                         std::cout << "500 Internal Server Error" << std::endl;
+//                 }
+//                 else
+//                     std::cout << "403 Permission denied" << std::endl;
+//             }
+//             else
+//             {
+//                 std::cout << "404 Not Found" << std::endl;
+//             }
+//         }
+//     }
+// }
 
 void   response::GetMethod(request &req)
 {

@@ -71,6 +71,7 @@ void	ft_add_server(std::fstream &file, Server &config_file);
 void	ft_add_block(Server_obj &config_file, std::string &befor, std::string &after);
 void	ft_add_location(std::fstream &file, Server_obj &config_file, Server Cont_server, std::string &befor, std::string &after);
 void	ft_split_line(std::string &line, std::string &befor, std::string &after);
+void	final_check(Server &config_file);
 
 
 

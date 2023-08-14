@@ -92,6 +92,7 @@ class response
 
 
 void    GetMethod(request &req);
+void    deleteMethod(request &req);
  void    SendResponse(int sck);
 };
 
