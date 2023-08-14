@@ -29,7 +29,7 @@ bool parseHeaders(std::istringstream& stream, request& req) {
             value.erase(0, value.find_first_not_of(" \t"));
             value.erase(value.find_last_not_of(" \t") + 1);
             // Convert the key to lowercase for access
-            std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+            // std::transform(key.begin(), key.end(), key.begin(), ::tolower);
             // Handle header duplication or other custom logic
             // For example, you can choose to append multiple values for the same header key
             if (req._headers.find(key) != req._headers.end()) {
@@ -163,7 +163,11 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     std::cout << "***************** here *****************" << filename << std::endl;
     if(req.getBody().empty()){
         std::string extension = set_extension(req);
-        filename = "request_body_" + std::to_string(rand()) + "_" + std::to_string(sck) + extension;
+        std::ostringstream rnd_num;
+        rnd_num << rand();
+        std::ostringstream str_sck;
+        str_sck << sck;
+        filename = "request_body_" + rnd_num.str() + "_" + str_sck.str() + extension;
         req.setBody(filename);
     } else {
         filename = req.getBody();
@@ -191,11 +195,13 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     // }
 
     // Check if the entire body is successfully stored in the file
+
+    std::cout << "buffer : " << bff << std::endl;
     std::cout << "body size: " << bodyFile.tellp() << std::endl;
     std::cout << "content len: " << req.getContentLenght() << std::endl;
     if (req.getContentLenght() == (unsigned long)bodyFile.tellp()) {
         std::cout << "Request body stored in file: " << filename << std::endl;
-        std::string ext = set_extension(req);
+        // std::string ext = set_extension(req);
         // filename = filename.substr(0, filename.find(".bin")) + ext;
         bodyFile.close();
         req.setBody(filename);
@@ -238,73 +244,78 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     // }
 
 // New function to check if the request is complete based on Content-Length
-bool isRequestComplete(const std::string& buffer, request& req) {
-    // Check if the request headers have ended
-    size_t endOfHeadersPos = buffer.find("\r\n\r\n");
-    if (endOfHeadersPos == std::string::npos)
-        return false;
+// bool isRequestComplete(const std::string& buffer, request& req) {
+//     // Check if the request headers have ended
+//     size_t endOfHeadersPos = buffer.find("\r\n\r\n");
+//     if (endOfHeadersPos == std::string::npos)
+//         return false;
 
-    // If headers are complete, check if the "Content-Length" header is present
-    std::string contentLengthHeader = "Content-Length: ";
-    size_t contentLengthHeaderPos = buffer.find(contentLengthHeader);
-    if (contentLengthHeaderPos == std::string::npos) {
-        // No "Content-Length" header, headers are complete, and there is no body
-        req.setContentLenght(0);
-        return true;
-    }
+//     // If headers are complete, check if the "Content-Length" header is present
+//     std::string contentLengthHeader = "Content-Length: ";
+//     size_t contentLengthHeaderPos = buffer.find(contentLengthHeader);
+//     if (contentLengthHeaderPos == std::string::npos) {
+//         // No "Content-Length" header, headers are complete, and there is no body
+//         req.setContentLenght(0);
+//         return true;
+//     }
 
-    // Find the value of the "Content-Length" header
-    size_t contentLengthValuePos = contentLengthHeaderPos + contentLengthHeader.size();
-    size_t endOfContentLengthPos = buffer.find("\r\n", contentLengthValuePos);
-    if (endOfContentLengthPos == std::string::npos)
-        return false;
+//     // Find the value of the "Content-Length" header
+//     size_t contentLengthValuePos = contentLengthHeaderPos + contentLengthHeader.size();
+//     size_t endOfContentLengthPos = buffer.find("\r\n", contentLengthValuePos);
+//     if (endOfContentLengthPos == std::string::npos)
+//         return false;
 
-    std::string contentLengthValueStr = buffer.substr(contentLengthValuePos, endOfContentLengthPos - contentLengthValuePos);
-    req.setContentLenght(std::stoul(contentLengthValueStr));
+//     std::string contentLengthValueStr = buffer.substr(contentLengthValuePos, endOfContentLengthPos - contentLengthValuePos);
+//     req.setContentLenght(std::stoul(contentLengthValueStr));
 
-    // Calculate the expected request size (headers + body)
-    size_t requestSize = endOfHeadersPos + 4 /* \r\n\r\n size */ + req.getContentLenght();
-    return buffer.size() >= requestSize;
-}
+//     // Calculate the expected request size (headers + body)
+//     size_t requestSize = endOfHeadersPos + 4 /* \r\n\r\n size */ + req.getContentLenght();
+//     return buffer.size() >= requestSize;
+// }
 
-std::map<int, request> requests;
+// std::map<int, request> requests;
 
 // Main parsing function
 request pRequest(std::string& buffer, client_config clt, int sck) {
-    request& req = requests[sck];
+    request req;
 
     req.setIsDone(false);
+    std::cout << "**************starting parsing**************" << std::endl;
+    std::cout << "parsing request ****** sck" << sck << std::endl;
+    std::cout << "parsing request ****** sck" << sck << std::endl;
     std::istringstream stream(buffer);
     if (!parseRequestLine(stream, req) && !req.getMethod().empty()) {
         std::cerr << "Error: Invalid request line." << std::endl;
         return req;
     }
-    std::cout << "parsing request ****** " << sck << std::endl;
 
-    if (!parseHeaders(stream, req)) {
-        std::cerr << "Error: Invalid request headers." <<  std::endl;
-        return req;
-    }
-    std::map<std::string, std::string>::iterator it = req._headers.find("content-length");
+        if (!parseHeaders(stream, req)) {
+            std::cerr << "Error: Invalid request headers." <<  std::endl;
+            return req;
+        }
+        std::map<std::string, std::string>::iterator it = req._headers.find("content-length");
 
-    if (it != req.getHeaders().end() && req.getMethod() == "POST"){
-        unsigned long len = strtoul(it->second.c_str(), NULL, 10);
-        std::cout << "content lenght: " << len << std::endl;
-        req.setContentLenght(len); 
-        storeRequestBody(stream, req, sck);
-    }
-    if (req.getMethod() != "POST" || req.getIsDone() == true){
-    // if (req.analyzeRequest()){
-        std::cout << "Method: " << req.getMethod() << std::endl;
-        std::cout << "URI: " << req.getUri() << std::endl;
-        std::cout << "Request is valid" << std::endl;
-        req.analyzeRequest();
-        req.matchLocation(req.getUri() ,clt, sck);
-    }
+        // if (it != req.getHeaders().end() && req.getMethod() == "POST"){
+            unsigned long len = strtoul(it->second.c_str(), NULL, 10);
+            std::cout << "content lenght: " << len << std::endl;
+            req.setContentLenght(len); 
+            storeRequestBody(stream, req, sck);
+        // }
+        // if (req.getMethod() != "POST" || req.getIsDone() == true){
+        // if (req.analyzeRequest()){
+            std::cout << "Method: " << req.getMethod() << std::endl;
+            std::cout << "URI: " << req.getUri() << std::endl;
+            std::cout << "Request is valid" << std::endl;
+            req.analyzeRequest();
+            req.matchLocation(req.getUri() ,clt, sck);
+        // }
+        // }
+        std::map<int, Server_obj>::iterator myserver = clt.find(sck);
+        req.setServerName(myserver->second.get_host());
+        req.setFd(sck);
     // }
-    std::map<int, Server_obj>::iterator myserver = clt.find(sck);
-    req.setServerName(myserver->second.get_host());
-    req.setFd(sck);
+    // std::cout << "parsing request ****** " << client_config. << std::endl;
+
 
     if(req.getMethod() == "POST"){
         if (req.getHeaders().find("content-length") == req.getHeaders().end()) {

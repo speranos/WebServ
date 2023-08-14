@@ -132,6 +132,36 @@ int find(std::vector<std::string> list, std::string url){
     return -1;
 }
 
+
+// Partition the vector for quicksort
+int partition(std::vector<std::string>& arr, int low, int high) {
+    size_t pivot = arr[high].length();
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; ++j) {
+        if (arr[j].length() < pivot) {
+            ++i;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+
+// Quicksort algorithm
+void quickSort(std::vector<std::string>& arr, int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+// Custom sort function
+void customSort(std::vector<std::string>& arr) {
+    quickSort(arr, 0, arr.size() - 1);
+}
+
 typedef std::vector<location_obj> location;
 void request::matchLocation(std::string url, client_config clt, int sck){
     // match request url with location
@@ -153,7 +183,9 @@ void request::matchLocation(std::string url, client_config clt, int sck){
         unsorted_list.push_back(cpy_location[it].get_location());
     }
     // sort all location by lenght in loc_list in descending order
-    sort(loc_list.begin(), loc_list.end(), compare);
+
+    std::cout << "********************* to sorting" << std::endl;
+    customSort(loc_list);
     // then match the uri starting from the top of list
     std::string root;
     std::string tmp_url = url;
