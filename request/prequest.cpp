@@ -47,10 +47,10 @@ std::string set_extension(request req){
 
     std::map <std::string, std::string> head = req.getHeaders();
     std::string contentType;
-    if (head.find("content-type") == head.end()) {
+    if (head.find("Content-Type") == head.end()) {
         contentType = ".bin";
     } else {
-        contentType = head["content-type"];
+        contentType = head["Content-Type"];
         std::cout << "Content type =============================>>>"<<contentType << std::endl;
     }
     std::string extension;
@@ -197,7 +197,6 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
 
     // Check if the entire body is successfully stored in the file
 
-    std::cout << "buffer : " << bff.c_str() << std::endl;
     std::cout << "body size: " << bodyFile.tellp() << std::endl;
     std::cout << "content len: " << req.getContentLenght() << std::endl;
     if (req.getContentLenght() == (unsigned long)bodyFile.tellp()) {
@@ -212,69 +211,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     }
     return true;
 }
-    // else {
-    //     // If the stored body length doesn't match content length, remove the incomplete file
-    //     // std::cout << "Error: Failed to store complete request body." << std::endl;
-    //     // std::remove(filename.c_str());
-    //     return false;
-    // }
-    // if (stream) {
-    //     size_t bytesRead = static_cast<size_t>(stream.tellg());  // Get the actual number of bytes read
-    //     std::cout << "** bytes read: " << bytesRead <<std::endl;  
-    //     stream.read(&buffer[0], bytesRead);  // Read data into the buffer
-    //     if (bytesRead > 0) {
-    //         bodyFile.write(buffer.data(), bytesRead);  // Write the data to the file
-    //     }
-    // }
-    // char ch;
-    // int i = 0;
-    // while (stream.get(ch) && i++) {
-    //     bodyFile.put(ch);
-    // }
-    // std::cout << "*** stream lenght: " << i << std::endl;
-    // std::cout << "*** new content lenght: " << req.getContentLenght() << std::endl;
-    // unsigned long maxBytes = 1024;
-    // // while (remainingBytes > 0) {
-    //     std::cout << "buffer size: " << buffer.size() << std::endl;
-        // unsigned long bytesToRead = std::min(maxBytes, (unsigned long)buffer.size());
-        // std::cout << "bytes to read: " << bytesToRead << std::endl;
-        // stream.read(&buffer[0], bytesToRead);
-        // bodyFile.write(buffer.data(), bytesToRead);
-        // buffer.resize(1024);
-        // remainingBytes -= bytesToRead;
-    // }
 
-// New function to check if the request is complete based on Content-Length
-// bool isRequestComplete(const std::string& buffer, request& req) {
-//     // Check if the request headers have ended
-//     size_t endOfHeadersPos = buffer.find("\r\n\r\n");
-//     if (endOfHeadersPos == std::string::npos)
-//         return false;
-
-//     // If headers are complete, check if the "Content-Length" header is present
-//     std::string contentLengthHeader = "Content-Length: ";
-//     size_t contentLengthHeaderPos = buffer.find(contentLengthHeader);
-//     if (contentLengthHeaderPos == std::string::npos) {
-//         // No "Content-Length" header, headers are complete, and there is no body
-//         req.setContentLenght(0);
-//         return true;
-//     }
-
-//     // Find the value of the "Content-Length" header
-//     size_t contentLengthValuePos = contentLengthHeaderPos + contentLengthHeader.size();
-//     size_t endOfContentLengthPos = buffer.find("\r\n", contentLengthValuePos);
-//     if (endOfContentLengthPos == std::string::npos)
-//         return false;
-
-//     std::string contentLengthValueStr = buffer.substr(contentLengthValuePos, endOfContentLengthPos - contentLengthValuePos);
-//     req.setContentLenght(std::stoul(contentLengthValueStr));
-
-//     // Calculate the expected request size (headers + body)
-//     size_t requestSize = endOfHeadersPos + 4 /* \r\n\r\n size */ + req.getContentLenght();
-//     return buffer.size() >= requestSize;
-// }
-
-    // std::map<int, request> requests;
 
 // Main parsing function
 request pRequest(std::string& buffer, client_config clt, int sck, requests& map) {
@@ -311,7 +248,10 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
         std::cerr << "Error: Invalid request headers." <<  std::endl;
         return req;
     }
-
+    std::string bff = stream.str();
+    if((req.getMethod() == "GET" || req.getMethod() == "DELETE") && bff.find("\n\r\n\r")){
+        req.setIsDone(true);        
+    }
     std::map<std::string, std::string>::iterator it = req._headers.find("Content-Length");
     // std::cout << "parsing request ****** sck" << sck << std::endl;
     // std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
@@ -325,8 +265,12 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
         req.setContentLenght(len);  
             std::cout << "parsing request ****** sck" << sck << std::endl;
     }
-    storeRequestBody(stream, req, sck);
-    if (req.getMethod() != "POST" || req.getIsDone() == true){
+
+    if(req.getMethod() == "POST"){
+        storeRequestBody(stream, req, sck);
+    }
+
+    if (req.getIsDone() == true){
     // if (req.analyzeRequest()){
         std::cout << "Method: " << req.getMethod() << std::endl;
         std::cout << "URI: " << req.getUri() << std::endl;
@@ -338,89 +282,19 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);
     req.setServerName(myserver->second.get_host());
     req.setFd(sck);
-    // }
-    // std::cout << "parsing request ****** " << client_config. << std::endl;
-
-
-    // if(req.getMethod() == "POST"){
-    //     if (req.getHeaders().find("content-length") == req.getHeaders().end()) {
-    //         std::cerr << "Error: Content-Length header not found." << std::endl;
-    //         return req;
-    //     }
-    // }
-
-    // else if(req.getMethod() == "GET")
-    // {
-    //    std::cout << "get_index=================>"<< req._loc.get_index() << std::endl;
-    // }
-    // else if(req.getMethod() == "DELETE")
-    // {
-    //     std::string myLocation = req.getLocPath();
-    //     std::cout << "=====>" << myLocation << std::endl;
-    //     struct stat fileInfo;
-
-    //     // Check if it's a directory
-    //     if (stat(myLocation.c_str(), &fileInfo) == 0)
-    //     {
-    //         // if yes
-    //         if (S_ISDIR(fileInfo.st_mode))
-    //         {
-    //             if (myLocation[myLocation.size() - 1] != '/')
-    //                 std::cout << "409 Conflict" << std::endl;
-    //             else
-    //                 std::cout << "403 Permission denied" << std::endl;
-    //         }
-    //         // if it's a file
-    //         else
-    //         {
-    //             // Check if the file you want to delete exists be3da
-    //             if (fileExists(myLocation.c_str()))
-    //             {
-    //                 // Check if it has write permission
-    //                 if (writePerm(myLocation.c_str()))
-    //                 {
-    //                     // Delete the file
-    //                     int deleteResult = std::remove(myLocation.c_str());
-    //                     if (deleteResult == 0)
-    //                         // Successfully deleted
-    //                         std::cout << "204 No content" << std::endl;
-    //                     else
-    //                         // Error occured during the operation of deleting
-    //                         std::cout << "500 Internal Server Error" << std::endl;
-    //                 }
-    //                 else
-    //                     std::cout << "403 Permission denied" << std::endl;
-    //             }
-    //             else
-    //             {
-    //                 std::cout << "404 Not Found" << std::endl;
-    //             }
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     std::cerr << "Error: Invalid request method." << std::endl;
-    //     return req;
-    // }
-
-    // set the server name
+    std::cout << "parsing request ****** done ******************************************************" << std::endl;
 
     // Now you have all the information in the 'req' object.
     // You can use the getter functions to access the parsed data.
-    // std::cout << "Name: " << req.getServerName() << std::endl;
-    // std::cout << "FD: " << req.getFd() << std::endl;
-    // std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
-    // std::cout << "Headers: " << std::endl;
-    // std::map<std::string, std::string> headers = req.getHeaders();
-    // for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
-    //     std::cout << it->first << ": " << it->second << std::endl;
-    // }
-    // std::cout << "locPath : " << req.getLocPath() << std::endl;
+    std::cout << "Name: " << req.getServerName() << std::endl;
+    std::cout << "FD: " << req.getFd() << std::endl;
+    std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
+    std::cout << "Headers: " << std::endl;
+    std::map<std::string, std::string> headers = req.getHeaders();
+    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+    std::cout << "locPath : " << req.getLocPath() << std::endl;
 
-    // if (MethodPost(req, clt);
-    // Clear the requestBuffer after processing the complete request
-    // requestBuffer.clear();
-    // delete &req;
     return req;
 }

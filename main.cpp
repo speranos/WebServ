@@ -197,6 +197,7 @@ int main(int ac, char **av)
 						close(it_sck);
 						map.erase(it_sck);
 						new_clt.erase(it_sck);
+						delete [] req._res;
 						acceptedSockets.erase(it_sck);
 						clt_config.erase(it_sck);
 					 }
