@@ -153,7 +153,7 @@ int main(int ac, char **av)
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 
 					std::cout << buffer << std::endl;
-					rq = pRequest(buffer, clt_config, sck, map);
+					pRequest(buffer, clt_config, sck, map);
 					ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
 					it = new_clt.find(sck);

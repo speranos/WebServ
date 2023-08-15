@@ -94,7 +94,7 @@ class request{
 };
 
 typedef std::map<int, request> requests;
-request pRequest(std::string& buffer, client_config clt, int sck, requests map);
+request pRequest(std::string& buffer, client_config clt, int sck, requests& map);
 bool MethodPost(request& req, client_config clt);
 
 class client
