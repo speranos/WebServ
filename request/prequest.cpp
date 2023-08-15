@@ -161,6 +161,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
     // generate a unique filename for the body file depending on content type
     // std::cout << "storing body : " << req.getHttpV() << std::endl;
     std::cout << "***************** here *****************" << filename << std::endl;
+    std::cout << "content len: " << req.getContentLenght() << std::endl;
     if(req.getBody().empty()){
         std::string extension = set_extension(req);
         std::ostringstream rnd_num;
@@ -188,7 +189,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
         if (bff.find("\r\n\r\n") != std::string::npos) {
             bff = bff.substr(bff.find("\r\n\r\n") + 4);
         }
-        bytes = bff.length();
+        bytes = bff.size();
         std::cout << "*******    bytes: " << bytes << std::endl;
         bodyFile.write(bff.data(), bytes);
         bff.clear();
@@ -196,7 +197,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
 
     // Check if the entire body is successfully stored in the file
 
-    std::cout << "buffer : " << bff << std::endl;
+    std::cout << "buffer : " << bff.c_str() << std::endl;
     std::cout << "body size: " << bodyFile.tellp() << std::endl;
     std::cout << "content len: " << req.getContentLenght() << std::endl;
     if (req.getContentLenght() == (unsigned long)bodyFile.tellp()) {
@@ -278,24 +279,25 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
 // Main parsing function
 request pRequest(std::string& buffer, client_config clt, int sck, requests& map) {
     std::cout << "**************starting parsing**************" << std::endl;
-    requests::iterator search = map.find(sck);
-    if(search == map.end()){
-        std::cout << "not found" << std::endl;
-        search = map.insert(std::make_pair(sck, request())).first;
-    }
-    std::cout << "found" << std::endl;
-    request& req = search->second;
-    // if (search != map.end()) {
-    //     // Found an existing request object
-    //     std::cout << "Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-    //     req = search->second;
-    // } else {
-    //     // Request object not found, create a new one
-    //     map.insert(std::make_pair(sck, req));
-    //     std::cout << "Request not found ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+    // if(search == map.end()){
+    //     std::cout << "not found" << std::endl;
+    //     search = map.insert(std::make_pair(sck, request())).first;
     // }
+    // std::cout << "found" << std::endl;
+    // request req;
+    requests::iterator search = map.find(sck);
+    int flag_req = 0;
+    if (search != map.end()) {
+        std::cout << "Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        flag_req = 1;
+    }
     // std::cout << ":::*********************req : " << search->second.getMethod() << std::endl;
-    
+    if(flag_req == 0){
+        std::cout << "NOT Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        map.insert(std::make_pair(sck, request()));
+    }
+    requests::iterator second = map.find(sck);
+    request &req = second->second;
 
     // (void)map;
     req.setIsDone(false);
@@ -313,12 +315,14 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
     std::map<std::string, std::string>::iterator it = req._headers.find("Content-Length");
     // std::cout << "parsing request ****** sck" << sck << std::endl;
     // std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
-    if (it != req.getHeaders().end() && req.getContentLenght() == 0){
+    if (flag_req == 0 && it != req._headers.end()){
         // std::cout << "************** " << it->second.c_str() << std::endl;
         std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
         unsigned long len;
         std::istringstream (it->second) >> len;
-        req.setContentLenght(len);
+        std::cout << "pRequest ********* content len: " << len << std::endl;
+        
+        req.setContentLenght(len);  
             std::cout << "parsing request ****** sck" << sck << std::endl;
     }
     storeRequestBody(stream, req, sck);
