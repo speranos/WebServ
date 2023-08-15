@@ -273,16 +273,19 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
 //     return buffer.size() >= requestSize;
 // }
 
-// std::map<int, request> requests;
+std::map<int, request> requests;
 
 // Main parsing function
 request pRequest(std::string& buffer, client_config clt, int sck) {
-    request req;
+    // if (requests[sck].getIsDone() == false){
+
+    // }
+    request& req = requests[sck];
+
+        
 
     req.setIsDone(false);
     std::cout << "**************starting parsing**************" << std::endl;
-    std::cout << "parsing request ****** sck" << sck << std::endl;
-    std::cout << "parsing request ****** sck" << sck << std::endl;
     std::istringstream stream(buffer);
     if (!parseRequestLine(stream, req) && !req.getMethod().empty()) {
         std::cerr << "Error: Invalid request line." << std::endl;
@@ -293,22 +296,27 @@ request pRequest(std::string& buffer, client_config clt, int sck) {
             std::cerr << "Error: Invalid request headers." <<  std::endl;
             return req;
         }
-        std::map<std::string, std::string>::iterator it = req._headers.find("content-length");
 
-        // if (it != req.getHeaders().end() && req.getMethod() == "POST"){
-            unsigned long len = strtoul(it->second.c_str(), NULL, 10);
-            std::cout << "content lenght: " << len << std::endl;
-            req.setContentLenght(len); 
-            storeRequestBody(stream, req, sck);
-        // }
-        // if (req.getMethod() != "POST" || req.getIsDone() == true){
+        std::map<std::string, std::string>::iterator it = req._headers.find("Content-Length");
+        std::cout << "parsing request ****** sck" << sck << std::endl;
+        std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
+        if (it != req.getHeaders().end() && req.getContentLenght() == 0){
+            // std::cout << "************** " << it->second.c_str() << std::endl;
+            std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
+            unsigned long len;
+            std::istringstream (it->second) >> len;
+            req.setContentLenght(len);
+             std::cout << "parsing request ****** sck" << sck << std::endl;
+        }
+        storeRequestBody(stream, req, sck);
+        if (req.getMethod() != "POST" || req.getIsDone() == true){
         // if (req.analyzeRequest()){
             std::cout << "Method: " << req.getMethod() << std::endl;
             std::cout << "URI: " << req.getUri() << std::endl;
             std::cout << "Request is valid" << std::endl;
             req.analyzeRequest();
             req.matchLocation(req.getUri() ,clt, sck);
-        // }
+        }
         // }
         std::map<int, Server_obj>::iterator myserver = clt.find(sck);
         req.setServerName(myserver->second.get_host());
