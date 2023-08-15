@@ -9,7 +9,6 @@
 #include <sys/types.h>
 #include "../webserv.hpp"
 
-//#include "../response.hpp"
 
 class response;
 enum StatusCode {
@@ -17,6 +16,7 @@ enum StatusCode {
     NOT_FOUND = 404,
     INTERNAL_SERVER_ERROR = 500
 };
+
 class request{
     public:
         std::string _method;
@@ -93,7 +93,8 @@ class request{
         void clear();
 };
 
-request pRequest(std::string& buffer, client_config clt, int sck);
+typedef std::map<int, request> requests;
+request pRequest(std::string& buffer, client_config clt, int sck, requests map);
 bool MethodPost(request& req, client_config clt);
 
 class client

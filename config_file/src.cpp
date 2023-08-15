@@ -54,7 +54,6 @@ void	ft_add_server(std::fstream &file, Server &server)
 		else if(line.size() == 0)
 			continue;
 	}
-
 	while (std::getline(file, line) && end_serv == 1)
 	{
 		if(line == "}")

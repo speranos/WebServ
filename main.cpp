@@ -108,6 +108,7 @@ int main(int ac, char **av)
 		request rq;
 		sockaddr_in	address;
 		new_client	new_clt;
+		requests map;
 		client		clt;
 
 		while (i < server.size())
@@ -152,8 +153,8 @@ int main(int ac, char **av)
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 
 					std::cout << buffer << std::endl;
-					 rq = pRequest(buffer, clt_config, sck);
-					 ft_add_client(sck, new_clt, rq, clt);
+					rq = pRequest(buffer, clt_config, sck, map);
+					ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
 					it = new_clt.find(sck);
 					it->second.sett_rq_object(rq);
@@ -194,6 +195,7 @@ int main(int ac, char **av)
 						// std::cout << " . aaaaaaaaa" << std::endl;
 						FD_CLR(it_sck, &write_master_fds);
 						close(it_sck);
+						map.erase(it_sck);
 						new_clt.erase(it_sck);
 						acceptedSockets.erase(it_sck);
 						clt_config.erase(it_sck);

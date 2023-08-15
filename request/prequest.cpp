@@ -273,16 +273,19 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
 //     return buffer.size() >= requestSize;
 // }
 
-std::map<int, request> requests;
+    // std::map<int, request> requests;
 
 // Main parsing function
-request pRequest(std::string& buffer, client_config clt, int sck) {
+request pRequest(std::string& buffer, client_config clt, int sck, requests map) {
     // if (requests[sck].getIsDone() == false){
-
     // }
-    request& req = requests[sck];
-
-        
+    request req;
+    requests::iterator iterat = map.find(sck);
+    if(iterat->second.getMethod().empty()){
+        req = iterat->second;
+    }else{
+        map.insert(std::make_pair(sck, req));
+    }
 
     req.setIsDone(false);
     std::cout << "**************starting parsing**************" << std::endl;
