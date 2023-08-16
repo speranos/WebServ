@@ -62,7 +62,7 @@ class request{
             this->_isdone = cpy._isdone;
             return(*this);
         };
-
+        std::string to_str(int  num);
         std::string getMethod() const;
         std::string getUri() const;
         std::string getHttpV() const;

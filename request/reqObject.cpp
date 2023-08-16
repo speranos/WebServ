@@ -7,7 +7,12 @@
 // request::~request(){
 //     std::cout  << "destruct request" << std::endl;
 // }
-
+std::string request::to_str(int  num)
+{
+    std::ostringstream conv;
+    conv << num;
+    return(conv.str());
+}
 std::string request::getMethod() const{
     return _method;
 }

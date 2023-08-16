@@ -103,7 +103,7 @@ int main(int ac, char **av)
 		int		sck;
 		int		MAX_FD;
 		int		sck_fd;
-		int it_sck;
+		int it_sck = 0;
 		request req;
 		request rq;
 		sockaddr_in	address;
@@ -152,9 +152,9 @@ int main(int ac, char **av)
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 					std::cout << " ret_readddd >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << ret_read << std::endl;
-
-					std::cout << buffer << std::endl;
-					pRequest(buffer, clt_config, sck, map, ret_read);
+					
+					//std::cout << buffer << std::endl;
+					rq = pRequest(buffer, clt_config, sck, map, ret_read);
 					ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
 					it = new_clt.find(sck);
@@ -177,7 +177,7 @@ int main(int ac, char **av)
 						map[it_sck]._res->GetMethod(map[it_sck]);
 					buffer.clear();
 					buffer.resize(1024);
-					if(map[sck].getIsDone() == true)
+					if(map[it_sck].getIsDone() == true)
 					{
 						std::cout << "WRIIIITEEEE "<< std::endl;
 						std::cout << "ret read >>> " << ret_read << std::endl;
@@ -197,12 +197,13 @@ int main(int ac, char **av)
 						// std::cout << " . aaaaaaaaa" << std::endl;
 					if(map[it_sck]._res->_isDone == true)
 					 {
+						std::cout << "is done value =="<<map[it_sck]._res->_isDone << std::endl;
 						std::cout << "sck erase >>>> " << it_sck << std::endl;
 						FD_CLR(it_sck, &write_master_fds);
 						close(it_sck);
 						map.erase(it_sck);
 						new_clt.erase(it_sck);
-						delete [] req._res;
+						//delete [] req._res;
 						acceptedSockets.erase(it_sck);
 						clt_config.erase(it_sck);
 					 }
