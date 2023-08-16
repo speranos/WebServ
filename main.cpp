@@ -151,9 +151,10 @@ int main(int ac, char **av)
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
+					std::cout << " ret_readddd >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << ret_read << std::endl;
 
 					std::cout << buffer << std::endl;
-					pRequest(buffer, clt_config, sck, map);
+					pRequest(buffer, clt_config, sck, map, ret_read);
 					ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
 					it = new_clt.find(sck);
@@ -167,7 +168,7 @@ int main(int ac, char **av)
 					// {
 					// 	std::cout << ita->first << " : " << ita->second << std::endl;
 					// }
-					req._res = new response();
+					//req._res = new response();
 
 					// req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
 					// req._res->set_get_con_type(req);
@@ -176,8 +177,9 @@ int main(int ac, char **av)
 						req._res->GetMethod(req);
 					buffer.clear();
 					buffer.resize(1024);
-					if(ret_read < 1024)
+					if(map[sck].getIsDone() == true)
 					{
+						std::cout << "WRIIIITEEEE "<< std::endl;
 						std::cout << "ret read >>> " << ret_read << std::endl;
 						FD_SET(it_sck, &write_master_fds);
 						FD_CLR(it_sck, &read_master_fds);
@@ -186,21 +188,21 @@ int main(int ac, char **av)
 				}
 				else if(FD_ISSET(it_sck, &write_fds))
 				{
-					req._res->Send(it_sck, req);
+					//req._res->Send(it_sck, req);
 
 					printf("\n------------------Hello message sent-------------------\n");
-					if(req._res->_isDone == true)
-					 {
-						std::cout << "sck erase >>>> " << it_sck << std::endl;
+					//if(req._res->_isDone == true)
+					 //{
+						//std::cout << "sck erase >>>> " << it_sck << std::endl;
 						// std::cout << " . aaaaaaaaa" << std::endl;
 						FD_CLR(it_sck, &write_master_fds);
 						close(it_sck);
 						map.erase(it_sck);
 						new_clt.erase(it_sck);
-						delete [] req._res;
+						//delete [] req._res;
 						acceptedSockets.erase(it_sck);
 						clt_config.erase(it_sck);
-					 }
+					 //}
 					break;
 				}
 				sck++;

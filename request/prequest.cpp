@@ -152,8 +152,15 @@ std::string set_extension(request req){
     return extension;
 }
 
+size_t min(size_t s1, size_t s2){
+    if(s1 > s2)
+        return s2;
+    return s1; 
+}
+
+
 // Function to store the request body in a file
-bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
+bool storeRequestBody(std::istringstream& stream, request& req, int sck, int ret_read) {
     // std::ofstream bodyFile;
 
     std::string filename;
@@ -182,7 +189,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
 
     // std::cout << "storing body : " << filename << std::endl;
         std::string buffer;
-        int bytes = 0;
+        size_t bytes = 0;
         std::string bff;
         bff.resize(1024);
         bff = stream.str();
@@ -190,13 +197,13 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
             bff = bff.substr(bff.find("\r\n\r\n") + 4);
         }
         bytes = bff.size();
+        bytes = min(bytes, ret_read);
         std::cout << "*******    bytes: " << bytes << std::endl;
         bodyFile.write(bff.data(), bytes);
         bff.clear();
     // }
 
     // Check if the entire body is successfully stored in the file
-
     std::cout << "body size: " << bodyFile.tellp() << std::endl;
     std::cout << "content len: " << req.getContentLenght() << std::endl;
     if (req.getContentLenght() == (unsigned long)bodyFile.tellp()) {
@@ -209,12 +216,12 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck) {
         return false;
         // Store the filename in the request object
     }
-    return true;
+    return false;
 }
 
 
 // Main parsing function
-request pRequest(std::string& buffer, client_config clt, int sck, requests& map) {
+request pRequest(std::string& buffer, client_config clt, int sck, requests& map, int ret_read) {
     std::cout << "**************starting parsing**************" << std::endl;
     // if(search == map.end()){
     //     std::cout << "not found" << std::endl;
@@ -237,6 +244,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
     request &req = second->second;
 
     // (void)map;
+    // req.setContentLenght(0);
     req.setIsDone(false);
     std::istringstream stream(buffer);
     if (!parseRequestLine(stream, req) && !req.getMethod().empty()) {
@@ -249,7 +257,9 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
         return req;
     }
     std::string bff = stream.str();
+    // std::cout << "**********buffer" << bff << std::endl;
     if((req.getMethod() == "GET" || req.getMethod() == "DELETE") && bff.find("\n\r\n\r")){
+        std::cout << "TESSSTTTT TRUEUUUEUEUEUEUEUEUEUEUEUEU" << std::endl;
         req.setIsDone(true);        
     }
     std::map<std::string, std::string>::iterator it = req._headers.find("Content-Length");
@@ -267,7 +277,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map)
     }
 
     if(req.getMethod() == "POST"){
-        storeRequestBody(stream, req, sck);
+        storeRequestBody(stream, req, sck, ret_read);
     }
 
     if (req.getIsDone() == true){
