@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include "../webserv.hpp"
 
 

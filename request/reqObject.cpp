@@ -191,36 +191,50 @@ void request::matchLocation(std::string url, client_config clt, int sck){
 
     std::cout << "********************* to sorting" << std::endl;
     customSort(loc_list);
+    // loc_list::iterator it = loc_list.begin();
+    for(size_t it= 0; it < loc_list.size() ; it++){
+        std::cout << "listtt *************** "<<loc_list[it] << std::endl;
+    }
     // then match the uri starting from the top of list
     std::string root;
     std::string tmp_url = url;
-    std::string locPath = "";
+    std::string locPath;
     while(1){
 
-        // for(int it2 = 0; it2 < (int)loc_list.size(); it2++){
-
-        //     std::cout << "location " << it2 << ">> " << loc_list[it2] << std::endl;
-        //     std::cout << "sorted location " << it2 << ">> " << unsorted_list[it2] << std::endl;
-        // }
-        // std::cout << "initial_url  >> "  << url << std::endl;
-        // std::cout << "url >>" << url << std::endl;
-        int index = find(loc_list, url);
-        // std::cout << "index  bbbbbbbef***** " << index <<std::endl;
+        int x = find(loc_list, url);
+        std::cout << "index  bbbbbbbef***** " << x <<std::endl;
 
         // std::cout << "index  ***** " << index <<std::endl;
-        if (index >= 0){
-            index = find(unsorted_list, loc_list[index]);
-            std::cout << "matched  *****" <<std::endl;
+        if (x >= 0){
+            // if (loc_list[index] == "/" && loc_list[index].length() == 1){
+            //     for(size_t x = 0; x < unsorted_list.size(); x++){
+            //         if(unsorted_list[x] == "/")
+            //             index = x;
+            //     }
+            // }
+            int index = find(unsorted_list, loc_list[x]);
+            if(index == -1)
+                std::cout << "error: find failed" << std::endl;
+            if(loc_list[x] != unsorted_list[index]){
+                for(size_t r = 0; r < unsorted_list.size(); r++){
+                    if(unsorted_list[r] == "/"){
+                        index = r;
+                    }
+                }
+                // index = find(unsorted_list, "/");
+            }
+            // std::cout << "matched  *****" <<std::endl;
+            // for(size_t it2= 0; it2 < unsorted_list.size() ; it2++){
+            //         std::cout << " unsorted listtt *************** "<<unsorted_list[it2] << std::endl;
+            //     }
+            
             setLoc(cpy_location[index]);
-
-            // std::cout << "iteeer" << cpy_location[index + 1].get_root() << std::endl;
-            // std::cout << "url :  "  << url << std::endl;
             root = cpy_location[index].get_root();
 
 
 
             if (!root.empty()){
-                std::cout << "root :  "  << root << std::endl;
+                // std::cout << "root :  "  << root << std::endl;
                 locPath = root + tmp_url;
                 setLocPath(locPath);
                 // std::cout << "UUUURLLLLL >>>>> " << getLocPath() << std::endl;
@@ -233,16 +247,17 @@ void request::matchLocation(std::string url, client_config clt, int sck){
                 break;
             }
         }
-        if (locPath == ""){
+        if (locPath.empty()){
             url = url.substr(0, url.find_last_of("/"));
             // std::cout << "url >> " << url << std::endl;
             // std::cout << "size url >>" << url.size() << std::endl;
 
         }
-        else if (url.empty() || url == "/")
+        else if (url.empty())
             break;
 
     }
+    std::cout << "loc_path >>" << locPath << std::endl;
     // if (url.empty() || url == "/"){
     //     root = "/";
     //     // std::cout << "root :  "  << root << std::endl;

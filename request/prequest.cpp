@@ -219,6 +219,65 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck, int ret
     return false;
 }
 
+bool fileExists(const char* path) {
+    struct stat fileInfo;
+    return (stat(path, &fileInfo) == 0);
+}
+
+
+bool writePerm(const char* filename)
+{
+    struct stat fileStat;
+    if (stat(filename, &fileStat) != 0)
+        return false;
+    return (fileStat.st_mode & S_IWUSR) != 0;
+}
+
+void methodDelete(request& req){
+        std::string myLocation = req.getLocPath();
+        std::cout << "=====>" << myLocation << std::endl;
+        struct stat fileInfo;
+
+        // Check if it's a directory
+        if (stat(myLocation.c_str(), &fileInfo) == 0)
+        {
+            // if yes
+            if (S_ISDIR(fileInfo.st_mode))
+            {
+                if (myLocation[myLocation.size() - 1] != '/')
+                    std::cout << "409 Conflict" << std::endl;
+                else
+                    std::cout << "403 Permission denied" << std::endl;
+            }
+            // if it's a file
+            else
+            {
+                // Check if the file you want to delete exists be3da
+                if (fileExists(myLocation.c_str()))
+                {
+                    // Check if it has write permission
+                    if (writePerm(myLocation.c_str()))
+                    {
+                        // Delete the file
+                        int deleteResult = std::remove(myLocation.c_str());
+                        if (deleteResult == 0)
+                            // Successfully deleted
+                            std::cout << "204 No content" << std::endl;
+                        else
+                            // Error occured during the operation of deleting
+                            std::cout << "500 Internal Server Error" << std::endl;
+                    }
+                    else
+                        std::cout << "403 Permission denied" << std::endl;
+                }
+                else
+                {
+                    std::cout << "404 Not Found" << std::endl;
+                }
+            }
+        }
+}
+
 
 // Main parsing function
 request pRequest(std::string& buffer, client_config clt, int sck, requests& map, int ret_read) {
@@ -293,18 +352,19 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     req.setServerName(myserver->second.get_host());
     req.setFd(sck);
     std::cout << "parsing request ****** done ******************************************************" << std::endl;
-
+    if(req.getMethod() == "DELETE")
+        methodDelete(req);
     // Now you have all the information in the 'req' object.
     // You can use the getter functions to access the parsed data.
-    std::cout << "Name: " << req.getServerName() << std::endl;
-    std::cout << "FD: " << req.getFd() << std::endl;
-    std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
-    std::cout << "Headers: " << std::endl;
-    std::map<std::string, std::string> headers = req.getHeaders();
-    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
-        std::cout << it->first << ": " << it->second << std::endl;
-    }
-    std::cout << "locPath : " << req.getLocPath() << std::endl;
+    // std::cout << "Name: " << req.getServerName() << std::endl;
+    // std::cout << "FD: " << req.getFd() << std::endl;
+    // std::cout << "HTTP Version: " << req.getHttpV() << std::endl;
+    // std::cout << "Headers: " << std::endl;
+    // std::map<std::string, std::string> headers = req.getHeaders();
+    // for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
+    //     std::cout << it->first << ": " << it->second << std::endl;
+    // }
+    // std::cout << "locPath : " << req.getLocPath() << std::endl;
 
     return req;
 }
