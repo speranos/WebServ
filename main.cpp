@@ -163,18 +163,18 @@ int main(int ac, char **av)
 					it_sck = it->first;
 					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
 					req = it->second.get_rq_object();
-					std::map<std::string, std::string> headers = req.getHeaders();
+					std::map<std::string, std::string> headers = map[it_sck].getHeaders();
 					// for(std::map<std::string, std::string>::iterator ita = headers.begin(); ita != headers.end(); ita++)
 					// {
 					// 	std::cout << ita->first << " : " << ita->second << std::endl;
 					// }
 					//req._res = new response();
-
+					map[it_sck]._res = new response();
 					// req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
 					// req._res->set_get_con_type(req);
 					// req._res->setContentLenght(req);
-					if(req.getMethod() == "GET")
-						req._res->GetMethod(req);
+					if(map[it_sck].getMethod() == "GET")
+						map[it_sck]._res->GetMethod(map[it_sck]);
 					buffer.clear();
 					buffer.resize(1024);
 					if(map[sck].getIsDone() == true)
@@ -186,23 +186,26 @@ int main(int ac, char **av)
 					}
 					break;
 				}
-				else if(FD_ISSET(it_sck, &write_fds))
+				else if(FD_ISSET(sck, &write_fds))
 				{
 					//req._res->Send(it_sck, req);
-
 					printf("\n------------------Hello message sent-------------------\n");
+					map[it_sck]._res->Send(it_sck, map[it_sck]);
 					//if(req._res->_isDone == true)
 					 //{
 						//std::cout << "sck erase >>>> " << it_sck << std::endl;
 						// std::cout << " . aaaaaaaaa" << std::endl;
+					if(map[it_sck]._res->_isDone == true)
+					 {
+						std::cout << "sck erase >>>> " << it_sck << std::endl;
 						FD_CLR(it_sck, &write_master_fds);
 						close(it_sck);
 						map.erase(it_sck);
 						new_clt.erase(it_sck);
-						//delete [] req._res;
+						delete [] req._res;
 						acceptedSockets.erase(it_sck);
 						clt_config.erase(it_sck);
-					 //}
+					 }
 					break;
 				}
 				sck++;
