@@ -112,7 +112,7 @@ void   response::GetMethod(request &req)
         if(!access(req.getLocPath().c_str(),R_OK))
         {
             //send file
-            req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
+            req._res->SetStatusCode(200);
             req._res->set_get_con_type(req);
             req._res->setContentLenght(req);
             //req._res->set_body(req._res->FinalString(req));

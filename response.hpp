@@ -33,9 +33,10 @@ class response
     public:
     response():_isOpen(false),headerSent(false),_isDone(false){};
     ~response(){};
-    void    SetStatusCode(std::string _status)
+    void    SetStatusCode(int _status)
     {
-        _statuscode = _status;
+        if(_status == 200)
+        this->_statuscode = "HTTP/1.1 200 OK\r\n";
     };
     void setContentLenght(request &req);
     void    set_get_con_type(request &req);

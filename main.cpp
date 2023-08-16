@@ -186,7 +186,7 @@ int main(int ac, char **av)
 					}
 					break;
 				}
-				else if(FD_ISSET(sck, &write_fds))
+				else if(FD_ISSET(it_sck, &write_fds))
 				{
 					//req._res->Send(it_sck, req);
 					printf("\n------------------Hello message sent-------------------\n");
