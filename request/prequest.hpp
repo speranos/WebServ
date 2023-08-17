@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "../webserv.hpp"
+#define BUFF_SIZE 66000
 
 
 class response;
@@ -23,15 +24,23 @@ class request{
         std::string _method;
         response *_res;
         std::string _uri;
+         int op;
+        unsigned int file_size;
+        char    buffer[BUFF_SIZE];
         std::string _httpV;
         std::map<std::string, std::string> _headers;
         std::string _body;
         std::string _serverName;
         std::string _locPath;
+         bool    _isOpen;
+        bool    headerSent;
+        bool    _isDone;
         location_obj _loc; // location dialna
         int         _fd;
-        unsigned long     _content_lenght;  
-        StatusCode statusCode;
+        unsigned long     _content_lenght;
+         std::string       _Content_Lenght;
+        std::string             _statuscode;
+        int                 statuscode;
         bool _isdone;
         // response GetRes() const 
         // {
@@ -40,7 +49,7 @@ class request{
 
 
     public:
-        request() {
+        request():_isOpen(false),headerSent(false),_isDone(false) {
         //_res = new response();
         };
         ~request(){
@@ -49,6 +58,7 @@ class request{
         request &operator= (request cpy)
         {
             this->_method = cpy._method;
+            this->file_size = cpy.file_size;
             this->_res = cpy._res;
             this->_uri = cpy._uri;
             this->_httpV = cpy._httpV;
@@ -59,10 +69,49 @@ class request{
             this->_loc = cpy._loc;
             this->_fd = cpy._fd;
             this->_content_lenght = cpy._content_lenght;
-            this->statusCode = cpy.statusCode;
+            this->_statuscode= cpy._statuscode;
+            this->statuscode=cpy.statuscode;
+            this->op = cpy.op;
+            this->_Content_Lenght= cpy._Content_Lenght;
+            this->_isOpen = cpy._isOpen;
+            this->headerSent = cpy.headerSent;
+            this->_isDone = cpy._isDone;
             this->_isdone = cpy._isdone;
             return(*this);
         };
+                std::string getErrorStatusCode()
+    {
+        return this->_statuscode;
+    };
+     void    SetErrorStatusCode(int _status)
+    {
+        if(_status == 200)
+        _statuscode = "HTTP/1.1 200 OK\r\n";
+        else if(_status == 201)
+        _statuscode = "HTTP/1.1 201 Created\r\n";
+        else if(_status == 301)
+        _statuscode = "HTTP/1.1 301 Moved Permanently\r\n";
+        else if(_status == 304)
+        _statuscode = "HTTP/1.1 304 Not Modified\r\n";
+        else if(_status == 400)
+        _statuscode = "HTTP/1.1 400 Bad Request\r\n";
+        else if(_status == 401)
+        _statuscode = "HTTP/1.1 401 Unauthorized\r\n";
+        else if(_status == 403)
+        _statuscode = "HTTP/1.1 403 Forbidden\r\n";
+        else if(_status == 404)
+        _statuscode = "HTTP/1.1 404 Not Found\r\n";
+        else if(_status == 405)
+        _statuscode = "HTTP/1.1 405 Method Not Allowed\r\n";
+        else if(_status == 500)
+        _statuscode = "HTTP/1.1 500 Internal Server Error\r\n";
+        else if(_status == 501)
+        _statuscode = "HTTP/1.1 501 Not Implemented\r\n";
+    };
+
+        std::string error_page(request &req,std::ifstream &input_file);
+        std::string setErrorContentLenght(std::string path);
+        std::string setStatusCodePath(request &req);
         std::string to_str(int  num);
         std::string getMethod() const;
         std::string getUri() const;

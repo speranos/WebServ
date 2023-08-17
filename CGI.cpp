@@ -105,16 +105,13 @@ std::string  response::cgi_exec(request &req)
     int fd_out;
     std::string res;
     std::string cgi =  "/tmp/"+generateRandomFileName(".txt");
-    // if (req.getMethod() == "POST")
-    //     fd_in = open("/tmp/post.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
-    fd_out = open(cgi.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+    if (req.getMethod() == "POST")
+        fd_in = open("/tmp/post.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+    else if (req.getMethod() == "GET")
+        fd_out = open(cgi.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
     setEnv(req);
     char **env = env_to_char();
-    // if(req.getMethod() == "POST")
-    // {
-        
-    // }
-    // lseek(fd_in, 0, SEEK_SET);
+    lseek(fd_in, 0, SEEK_SET);
     std::string path = set_cgi_executable(req);
     this->pid = fork();
     if(this->pid == -1)
@@ -128,7 +125,10 @@ std::string  response::cgi_exec(request &req)
         char *arg[3]= {(char *)path.c_str(),(char *)pathloc.c_str(), NULL};
         if(!arg[0] || !arg[1])
         {
-              // send505;
+            req.statuscode = 500;
+            req.SetErrorStatusCode(500);
+            req.setStatusCodePath(req);
+            req.op = 4;
                 exit(1);
         }
 		 if(dup2(fd_in, 0) == -1)
@@ -152,7 +152,8 @@ std::string  response::cgi_exec(request &req)
     {
         
         std::string line;
-        waitpid(this->pid, NULL, 0);
+        waitpid(this->pid, &req._res->status, WNOHANG);
+        // if(req._res->status == EXIT_FAILURE)
 
         std::ifstream input_file;
         std::cout << "cgi :: " << cgi << std::endl;
@@ -196,7 +197,7 @@ std::string response::serveCgi(request &req)
 {
     
    std::string res;
-    if(!this->_isOpen)
+    if(!req._isOpen)
     {
        std::string path = req._res->cgi_exec(req);
         std::cout << "path :: " << path << std::endl;
@@ -208,19 +209,19 @@ std::string response::serveCgi(request &req)
             exit(1);
         }
         else
-            this->isfileopen(true);
+            req._isOpen= true;
     }
-    if(this->_isOpen)
+    if(req._isOpen)
     {
-        if(this->headerSent == false){
+        if(req.headerSent == false){
        res = req._res->getStatusCode();
        res.append(req._res->getContentType());
        res.append(req._res->getContentLenght());
        res.append("\r\n");
-        this->headerSent = true;  
+        req.headerSent = true;  
         }
         
-        if(this->headerSent == true && !this->_isDone){
+        if(req.headerSent == true && !req._isDone){
             
             this->file.read(this->buffer, 1024);
             std::streamsize bytesRead = this->file.gcount();
@@ -228,13 +229,13 @@ std::string response::serveCgi(request &req)
              { 
                 std::string chunk = std::string(this->buffer,bytesRead);
                  res.append(chunk);
-				this->isfileopen(true);
+				req._isOpen= true;
             }
             else
             {
-                this->bodyisDone(true);
+                req._isDone = true;
                 this->file.close();
-                this->isfileopen(false);
+                req._isOpen= false;
         
             }
         }

@@ -21,6 +21,7 @@ class response
         int statuscode;
      char buffer[BUFF_SIZE];
       std::ifstream file;
+      
       std::string _buffer;
       std::string _body;
       std::string _autoindex;
@@ -62,8 +63,6 @@ class response
         _statuscode = "HTTP/1.1 500 Internal Server Error\r\n";
         else if(_status == 501)
         _statuscode = "HTTP/1.1 501 Not Implemented\r\n";
-
-
     };
     std::string error_page(request &req);
     std::string setStatusCodePath(request &req);
@@ -79,6 +78,7 @@ class response
     std::string get_body();
     void    autoindex(request &req);
     std::string get_autoindex();
+    std::string setErrorContentLenght(std::string path);
     void setContentType(request &req)
     {
         std::map<std::string, std::string> con_type = req.getHeaders();

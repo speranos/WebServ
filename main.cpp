@@ -175,6 +175,10 @@ int main(int ac, char **av)
 					// req._res->setContentLenght(req);
 					if(map[it_sck].getMethod() == "GET")
 						map[it_sck]._res->GetMethod(map[it_sck]);
+					if((map[it_sck].getMethod() == "POST")){
+						std::string a =req._res->cgi_exec(req);
+						req.op = 1;
+					}
 					buffer.clear();
 					buffer.resize(1024);
 					if(map[it_sck].getIsDone() == true)
@@ -195,7 +199,7 @@ int main(int ac, char **av)
 					 //{
 						//std::cout << "sck erase >>>> " << it_sck << std::endl;
 						// std::cout << " . aaaaaaaaa" << std::endl;
-					if(map[it_sck]._res->_isDone == true)
+					if(map[it_sck]._isDone == true)
 					 {
 						std::cout << "is done value =="<<map[it_sck]._res->_isDone << std::endl;
 						std::cout << "sck erase >>>> " << it_sck << std::endl;

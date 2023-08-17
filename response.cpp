@@ -80,7 +80,7 @@ void   response::GetMethod(request &req)
             if(req._loc.get_cgi() && ((path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)))
             {
                 std::string i = req._res->cgi_exec(req);
-                req._res->op = 1;
+                req.op = 1;
                 closedir(dir);
             }
              else if(!access(req.getLocPath().c_str(),R_OK))
@@ -88,30 +88,30 @@ void   response::GetMethod(request &req)
                 req._res->SetStatusCode(200);
                 req._res->set_get_con_type(req);
                 req._res->setContentLenght(req);
-                req._res->op = 3;
+                req.op = 3;
                 closedir(dir);
                 
              }
           }
          else if(req._loc.get_auto_index())
          {
-            std::cout << "autoindex" << std::endl;
             req._res->autoindex(req);
-            req._res->op = 2;
+            req.op = 2;
             closedir(dir);
          }
         else
         {
-            req._res->statuscode = 403;
-            req._res->setStatusCodePath(req);
-            req._res->op = 4;
+            req.statuscode = 403;
+             req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
             closedir(dir);
         }
      }
     else if(req._loc.get_cgi()  && ((path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)))
      {
         std::string i = req._res->cgi_exec(req);
-        req._res->op = 1;
+        req.op = 1;
      }
     else if(access(req.getLocPath().c_str(),F_OK) == 0)
     {
@@ -120,13 +120,14 @@ void   response::GetMethod(request &req)
             req._res->SetStatusCode(200);
             req._res->set_get_con_type(req);
             req._res->setContentLenght(req);
-            req._res->op = 3;
+            req.op = 3;
         }
         else
         {   
-            req._res->statuscode = 403;
-            req._res->setStatusCodePath(req);
-            req._res->op = 4;
+            req.statuscode = 403;
+            req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
         }
     }
         
@@ -134,14 +135,16 @@ void   response::GetMethod(request &req)
 std::string  response::send_response_body(request &req)
 {
     std::string res;
-    if(req._res->op == 1 && req._loc.get_cgi())
+    if(req.op == 1 && req._loc.get_cgi())
         res = req._res->serveCgi(req);
-    else if(req._res->op == 2)
+    else if(req.op == 2)
         res = req._res->get_autoindex();
-    else if(req._res->op == 3)
+    else if(req.op == 3)
         res = req._res->FinalString(req);
-     else if(req._res->op == 4)
-         res = req._res->error_page(req);
+     else if(req.op == 4){
+        std::ifstream input_file;
+         res = req.error_page(req,input_file);
+     }
     return res;
 }
 
@@ -218,47 +221,47 @@ int response::get_file_size()
 std::string response::FinalString(request &req)
 {
     std::string res;
-    if(!this->_isOpen)
+    if(!req._isOpen)
     {
         this->file.close();
         this->file.open(req.getLocPath().c_str(), std::fstream::binary);
-        std::cout << "file path >>>> " << req.getLocPath() << std::endl;
         if(!file.is_open())
         {
-            req._res->statuscode = 403;
-            req._res->setStatusCodePath(req);
-            req._res->op = 4;
+            req.statuscode = 403;
+            req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
             std::cout << "file not open" << std::endl;
-            exit(1);
+            //exit(1);
         }
         else
-            this->isfileopen(true);
+            req._isOpen = true;
     }
-    if(this->_isOpen)
+    if(req._isOpen)
     {
-        if(this->headerSent == false){
+        if(req.headerSent == false){
        res = req._res->getStatusCode();
        res.append(req._res->getContentType());
        res.append(req._res->getContentLenght());
        res.append("\r\n");
-        this->headerSent = true;  
+        req.headerSent = true;  
         }
         
-        if(this->headerSent == true && !this->_isDone){
+        if(req.headerSent == true && !req._isDone){
             
-            this->file.read(this->buffer, 1024);
+            this->file.read(this->buffer, sizeof(this->buffer));
             std::streamsize bytesRead = this->file.gcount();
              if(bytesRead > 0)
              { 
                 std::string chunk = std::string(this->buffer,bytesRead);
                  res.append(chunk);
-				this->isfileopen(true);
+				req._isOpen = true;
             }
             else
             {
-                this->bodyisDone(true);
+                req._isDone = true;
                 this->file.close();
-                this->isfileopen(false);
+                req._isOpen = false;
         
             }
         }
@@ -270,30 +273,21 @@ std::string response::FinalString(request &req)
 void response::Send(int sck,request &req)
  {
     std::string res;
-     if( req._res->_isDone == false){
-        std::cout << req._res->op << std::endl;
+     if( req._isDone == false){
         res = req._res->send_response_body(req);
          int count = send(sck,res.c_str(), res.size(), 0);
          if(count == -1)
          {
              std::cerr << "send failed" << std::endl;
-            req._res->bodyisDone(true);
+            req._isDone = true;
          }
          if(count == 0)
          {
-             req._res->bodyisDone(true);
+             req._isDone = true;
          }
      }
 }
-void    response::set_body(std::string body)
-{
-    this->_body = body;
-}
 
-std::string response::get_body()
-{
-    return this->_body;
-}
 
 void    response::autoindex(request &req)
 {
@@ -306,16 +300,19 @@ void    response::autoindex(request &req)
         while((entry = readdir(dir)) != NULL)
         {
             std::string name = entry->d_name;
-            
-            index += "<li><a href=\"" + name + "\">" + name + "</a></li>";
+            if (entry->d_type == DT_DIR) 
+                index += "<li><a href=\"" + name + "/\">" + name + "/</a></li>";
+            else 
+                index += "<li><a href=\"" + name + "\">" + name + "</a></li>";
+           
         }
         closedir(dir);
     }
     else
     {
-       req._res->statuscode = 404;
-            req._res->setStatusCodePath(req);
-            req._res->op = 4;
+       req.statuscode = 404;
+            req.setStatusCodePath(req);
+            req.op = 4;
         exit(1);
     }
     this->_autoindex = "HTTP/1.1 200 OK\r\n";
@@ -329,48 +326,47 @@ std::string response::get_autoindex()
     return this->_autoindex;
 }
 
-std::string response::setStatusCodePath(request &req)
+std::string request::setStatusCodePath(request &req)
 {
     std::string res;
-    std::cout << "status code :: " << req._res->statuscode << std::endl;
-    if(req._res->statuscode == 204){
+    std::cout << "status code :: " << req.statuscode << std::endl;
+    if(req.statuscode == 204){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/204.html";
         return res;
     }
-    else if(req._res->statuscode == 400){
+    else if(req.statuscode == 400){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/400.html";
         return res;
     }
-    else if(req._res->statuscode == 403){
-        //std::cout << "403" << std::endl;
+    else if(req.statuscode == 403){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/403.html";
         return res;
     }
-    else if(req._res->statuscode == 404){
+    else if(req.statuscode == 404){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/404.html";
         return res;
     }
-    else if(req._res->statuscode == 405){
+    else if(req.statuscode == 405){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/405.html";
         return res;
     }
-    else if(req._res->statuscode == 500){
+    else if(req.statuscode == 500){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/500.html";
         return res;
     }
-    else if(req._res->statuscode == 501){
+    else if(req.statuscode == 501){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/501.html";
         return res;
     }
-    else if(req._res->statuscode == 409){
+    else if(req.statuscode == 409){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/505.html";
         return res;
     }
-    else if(req._res->statuscode == 413){
+    else if(req.statuscode == 413){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/413.html";
         return res;
     }
-    else if(req._res->statuscode == 414){
+    else if(req.statuscode == 414){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/414.html";
         return res;
     }
@@ -378,52 +374,51 @@ std::string response::setStatusCodePath(request &req)
         return ("");
 
 }
-std::string response::error_page(request &req)
+std::string request::error_page(request &req,std::ifstream &input_file)
 {
     std::string res;
-    std::string path = req._res->setStatusCodePath(req);
-    std::ifstream input_file(path.c_str());
-    std::cout << "path :: " << path << std::endl;
-    if(!this->_isOpen)
+    
+    std::string path = req.setStatusCodePath(req);
+    if(!req._isOpen)
     {
         input_file.close();
         input_file.open(path.c_str(), std::fstream::binary);
         if(!input_file.is_open())
         {
-            req._res->statuscode = 403;
-            req._res->setStatusCodePath(req);
-            req._res->op = 4;
+           // req._res->statuscode = 403;
+            //req._res->setStatusCodePath(req);
+            //req.op = 4;
             std::cout << "file not open" << std::endl;
             //exit(1);
         }
         else
-            this->isfileopen(true);
+            req._isOpen = true;
     }
-    if(this->_isOpen)
+    if(req._isOpen)
     {
-        if(this->headerSent == false){
-       res = req._res->getStatusCode();
-       res.append(req._res->getContentType());
-       res.append(req._res->getContentLenght());
+        if(req.headerSent == false){
+       res = req.getErrorStatusCode();
+       res.append("Content-Type: text/html\r\n");
+       res.append(req.setErrorContentLenght(path));
        res.append("\r\n");
-        this->headerSent = true;  
+        req.headerSent = true;  
         }
         
-        if(this->headerSent == true && !this->_isDone){
+        if(req.headerSent == true && !req._isDone){
             
-            input_file.read(this->buffer, sizeof(this->buffer));
+            input_file.read(req.buffer, sizeof(req.buffer));
             std::streamsize bytesRead = input_file.gcount();
              if(bytesRead > 0)
              { 
-                std::string chunk = std::string(this->buffer,bytesRead);
+                std::string chunk = std::string(req.buffer,bytesRead);
                  res.append(chunk);
-				this->isfileopen(true);
+				req._isOpen = true;
             }
             else
             {
-                this->_isDone = true;
+                req._isDone = true;
                 input_file.close();
-                this->isfileopen(false);
+                req._isOpen = false;
         
             }
         }
@@ -431,3 +426,17 @@ std::string response::error_page(request &req)
     
     return res;
 }
+std::string request::setErrorContentLenght(std::string path)
+    {
+        // std::map<std::string, std::string> con_type = req.getHeaders();
+        // std::string Content_type =  con_type["content-length"];
+        // _Content_Lenght += "Content-Length: " + Content_type + "\r\n";
+        
+        std::ifstream file(path.c_str(), std::ios::binary);
+        file.seekg(0, std::ios::end);
+        this->file_size = file.tellg();
+        std::cout << "file size is : " << file_size << std::endl;
+        file.close();
+        this->_Content_Lenght += "Content-Length: " + str(file_size) + "\r\n";
+        return(this->_Content_Lenght);
+    }

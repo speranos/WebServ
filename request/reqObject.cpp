@@ -33,9 +33,7 @@ std::string request::getBody() const{
     return _body;
 }
 
-int request::getStatusCode() const{
-    return statusCode;
-}
+
 
 std::string request::getServerName() const{
     return _serverName;
@@ -81,9 +79,6 @@ void request::setBody(const std::string& body){
     _body = body;
 }
 
-void request::setStatusCode(const StatusCode& statuscode){
-    statusCode = statuscode;
-}
 
 void request::setServerName(const std::string& serverName){
     _serverName = serverName;
