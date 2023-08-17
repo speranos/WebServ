@@ -102,7 +102,7 @@ void   response::GetMethod(request &req)
         else
         {
             req.statuscode = 403;
-            req.SetErrorStatusCode(403);
+             req.SetErrorStatusCode(403);
             req.setStatusCodePath(req);
             req.op = 4;
             closedir(dir);
@@ -124,18 +124,24 @@ void   response::GetMethod(request &req)
         }
         else
         {   
+            req.statuscode = 403;
+            req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
+        }
+    
+    }
+    else{
             req.statuscode = 404;
             req.SetErrorStatusCode(404);
             req.setStatusCodePath(req);
             req.op = 4;
-        }
     }
         
 }
 std::string  response::send_response_body(request &req)
 {
     std::string res;
-    std::cout << req.statuscode << std::endl;
     if((req.op == 1 && req._loc.get_cgi() )|| (req.getMethod() == "POST" && req._loc.get_cgi() && req.op == 1)){
         std::cout <<" errrrrrrror"<<res << std::endl;
         res = req._res->serveCgi(req);
@@ -144,7 +150,7 @@ std::string  response::send_response_body(request &req)
         res = req._res->get_autoindex();
     else if(req.op == 3)
         res = req._res->FinalString(req);
-     else if(req.op != 1 && req.op != 2 && req.op != 3 && req.op != 4){
+     else if(req.op != 1 && req.op != 2 && req.op != 3){
         std::ifstream input_file;
          res = req.error_page(req,input_file);
          
@@ -236,8 +242,6 @@ std::string response::FinalString(request &req)
             req.setStatusCodePath(req);
             req.op = 4;
             req._isDone = false;
-            std::ifstream input_file;
-            res = req.error_page(req,input_file);
             std::cout << "--file- not open" << std::endl;
             //exit(1);
         }
@@ -385,7 +389,7 @@ std::string request::setStatusCodePath(request &req)
 std::string request::error_page(request &req,std::ifstream &input_file)
 {
     std::string res;
-    
+    std::cout << "file not open" << std::endl;
     std::string path = req.setStatusCodePath(req);
     if(!req._isOpen)
     {
@@ -396,7 +400,7 @@ std::string request::error_page(request &req,std::ifstream &input_file)
            // req._res->statuscode = 403;
             //req._res->setStatusCodePath(req);
             //req.op = 4;
-            std::cout << "file not open" << std::endl;
+            
             //exit(1);
         }
         else
@@ -430,7 +434,6 @@ std::string request::error_page(request &req,std::ifstream &input_file)
             }
         }
     }
-    
     return res;
 }
 std::string request::setErrorContentLenght(std::string path)
