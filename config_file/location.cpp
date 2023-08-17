@@ -89,6 +89,11 @@ std::string	location_obj::get_root() const
 	return (this->root);
 }
 
+std::string	location_obj::get_upload() const
+{
+	return (this->upload);
+}
+
 ///////////////////////////////////////////////////////
 
 void	ft_add_location(std::fstream &file, Server_obj &config_file, Server server, std::string &befor, std::string &after)

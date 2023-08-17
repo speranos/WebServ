@@ -153,8 +153,9 @@ int main(int ac, char **av)
 					ret_read = read(sck , (void *)buffer.c_str(), 1024);
 					std::cout << " ret_readddd >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << ret_read << std::endl;
 					
-					//std::cout << buffer << std::endl;
+					std::cout << buffer << std::endl;
 					rq = pRequest(buffer, clt_config, sck, map, ret_read);
+					// std::cout << "location *************** " << map[sck].getLocPath() << std::endl;
 					ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
 					it = new_clt.find(sck);
@@ -173,11 +174,13 @@ int main(int ac, char **av)
 					// req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
 					// req._res->set_get_con_type(req);
 					// req._res->setContentLenght(req);
+					std::cout << "aaaa*******************************" << map[it_sck].getLocPath() <<std::endl;
 					if(map[it_sck].getMethod() == "GET")
 						map[it_sck]._res->GetMethod(map[it_sck]);
-					if((map[it_sck].getMethod() == "POST")){
-						std::string a =req._res->cgi_exec(req);
-						req.op = 1;
+					else if((map[it_sck].getMethod() == "POST") && map[it_sck].getIsDone() == true){
+						std::cout << "aaaa"<<std::endl;
+						map[it_sck]._res->MethodPost(map[it_sck]); 
+						//map[it_sck].op = 1;
 					}
 					buffer.clear();
 					buffer.resize(1024);

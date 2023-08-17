@@ -102,7 +102,7 @@ void   response::GetMethod(request &req)
         else
         {
             req.statuscode = 403;
-             req.SetErrorStatusCode(403);
+            req.SetErrorStatusCode(403);
             req.setStatusCodePath(req);
             req.op = 4;
             closedir(dir);
@@ -124,8 +124,8 @@ void   response::GetMethod(request &req)
         }
         else
         {   
-            req.statuscode = 403;
-            req.SetErrorStatusCode(403);
+            req.statuscode = 404;
+            req.SetErrorStatusCode(404);
             req.setStatusCodePath(req);
             req.op = 4;
         }
@@ -135,15 +135,19 @@ void   response::GetMethod(request &req)
 std::string  response::send_response_body(request &req)
 {
     std::string res;
-    if(req.op == 1 && req._loc.get_cgi())
+    std::cout << req.statuscode << std::endl;
+    if((req.op == 1 && req._loc.get_cgi() )|| (req.getMethod() == "POST" && req._loc.get_cgi() && req.op == 1)){
+        std::cout <<" errrrrrrror"<<res << std::endl;
         res = req._res->serveCgi(req);
+    }
     else if(req.op == 2)
         res = req._res->get_autoindex();
     else if(req.op == 3)
         res = req._res->FinalString(req);
-     else if(req.op == 4){
+     else if(req.op != 1 && req.op != 2 && req.op != 3 && req.op != 4){
         std::ifstream input_file;
          res = req.error_page(req,input_file);
+         
      }
     return res;
 }
@@ -231,7 +235,10 @@ std::string response::FinalString(request &req)
             req.SetErrorStatusCode(403);
             req.setStatusCodePath(req);
             req.op = 4;
-            std::cout << "file not open" << std::endl;
+            req._isDone = false;
+            std::ifstream input_file;
+            res = req.error_page(req,input_file);
+            std::cout << "--file- not open" << std::endl;
             //exit(1);
         }
         else
@@ -273,8 +280,10 @@ std::string response::FinalString(request &req)
 void response::Send(int sck,request &req)
  {
     std::string res;
+    
      if( req._isDone == false){
         res = req._res->send_response_body(req);
+        std::cout << "----------"<<req.op << std::endl;
          int count = send(sck,res.c_str(), res.size(), 0);
          if(count == -1)
          {
@@ -329,7 +338,6 @@ std::string response::get_autoindex()
 std::string request::setStatusCodePath(request &req)
 {
     std::string res;
-    std::cout << "status code :: " << req.statuscode << std::endl;
     if(req.statuscode == 204){
         res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/204.html";
         return res;
@@ -371,7 +379,7 @@ std::string request::setStatusCodePath(request &req)
         return res;
     }
     else
-        return ("");
+        return ("/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/400.html");
 
 }
 std::string request::error_page(request &req,std::ifstream &input_file)
@@ -419,7 +427,6 @@ std::string request::error_page(request &req,std::ifstream &input_file)
                 req._isDone = true;
                 input_file.close();
                 req._isOpen = false;
-        
             }
         }
     }

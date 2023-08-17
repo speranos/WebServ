@@ -291,12 +291,12 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     requests::iterator search = map.find(sck);
     int flag_req = 0;
     if (search != map.end()) {
-        std::cout << "Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        // std::cout << "Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
         flag_req = 1;
     }
     // std::cout << ":::*********************req : " << search->second.getMethod() << std::endl;
     if(flag_req == 0){
-        std::cout << "NOT Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+        // std::cout << "NOT Found request ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
         map.insert(std::make_pair(sck, request()));
     }
     requests::iterator second = map.find(sck);
@@ -307,18 +307,18 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     req.setIsDone(false);
     std::istringstream stream(buffer);
     if (!parseRequestLine(stream, req) && !req.getMethod().empty()) {
-        std::cerr << "Error: Invalid request line." << std::endl;
+        std::cerr << "Error 400 bad request: Invalid request line." << std::endl;
         return req;
     }
 
     if (!parseHeaders(stream, req)) {
-        std::cerr << "Error: Invalid request headers." <<  std::endl;
+        std::cerr << "Error 400 bad request: Invalid request headers." <<  std::endl;
         return req;
     }
     std::string bff = stream.str();
     // std::cout << "**********buffer" << bff << std::endl;
     if((req.getMethod() == "GET" || req.getMethod() == "DELETE") && bff.find("\n\r\n\r")){
-        std::cout << "TESSSTTTT TRUEUUUEUEUEUEUEUEUEUEUEUEU" << std::endl;
+        // std::cout << "TESSSTTTT TRUEUUUEUEUEUEUEUEUEUEUEUEU" << std::endl;
         req.setIsDone(true);        
     }
     std::map<std::string, std::string>::iterator it = req._headers.find("Content-Length");
@@ -326,10 +326,10 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     // std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
     if (flag_req == 0 && it != req._headers.end()){
         // std::cout << "************** " << it->second.c_str() << std::endl;
-        std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
+        // std::cout << "\n\nittttttttttttttttttt >>>>> <<>>>>> " << req.getMethod() << std::endl;
         unsigned long len;
         std::istringstream (it->second) >> len;
-        std::cout << "pRequest ********* content len: " << len << std::endl;
+        // std::cout << "pRequest ********* content len: " << len << std::endl;
         
         req.setContentLenght(len);  
             std::cout << "parsing request ****** sck" << sck << std::endl;
@@ -340,14 +340,12 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     }
 
     if (req.getIsDone() == true){
-    // if (req.analyzeRequest()){
-        std::cout << "Method: " << req.getMethod() << std::endl;
-        std::cout << "URI: " << req.getUri() << std::endl;
-        std::cout << "Request is valid" << std::endl;
-        req.analyzeRequest();
-        req.matchLocation(req.getUri() ,clt, sck);
+        // std::cout << "Method: " << req.getMethod() << std::endl;
+        // std::cout << "URI: " << req.getUri() << std::endl;
+        // std::cout << "Request is valid" << std::endl;
+        analyzeRequest(req);
+        matchLocation(req, req.getUri() ,clt, sck);
     }
-    // }
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);
     req.setServerName(myserver->second.get_host());
     req.setFd(sck);

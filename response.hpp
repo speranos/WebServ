@@ -21,7 +21,7 @@ class response
         int statuscode;
      char buffer[BUFF_SIZE];
       std::ifstream file;
-      
+      std::ifstream file_;
       std::string _buffer;
       std::string _body;
       std::string _autoindex;
@@ -65,6 +65,7 @@ class response
         _statuscode = "HTTP/1.1 501 Not Implemented\r\n";
     };
     std::string error_page(request &req);
+    void MethodPost(request& req);
     std::string setStatusCodePath(request &req);
     void setContentLenght(request &req);
     std::string  send_response_body(request &req);

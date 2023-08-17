@@ -79,34 +79,43 @@ class request{
             this->_isdone = cpy._isdone;
             return(*this);
         };
-                std::string getErrorStatusCode()
+    void setstatuscodeint(int status)
+    {
+        this->statuscode = status;
+    }
+    int getstatuscodeint()
+    {
+        return this->statuscode;
+    }
+
+    std::string getErrorStatusCode()
     {
         return this->_statuscode;
     };
      void    SetErrorStatusCode(int _status)
     {
         if(_status == 200)
-        _statuscode = "HTTP/1.1 200 OK\r\n";
+        this->_statuscode = "HTTP/1.1 200 OK\r\n";
         else if(_status == 201)
-        _statuscode = "HTTP/1.1 201 Created\r\n";
+        this->_statuscode = "HTTP/1.1 201 Created\r\n";
         else if(_status == 301)
-        _statuscode = "HTTP/1.1 301 Moved Permanently\r\n";
+        this->_statuscode = "HTTP/1.1 301 Moved Permanently\r\n";
         else if(_status == 304)
-        _statuscode = "HTTP/1.1 304 Not Modified\r\n";
+        this->_statuscode = "HTTP/1.1 304 Not Modified\r\n";
         else if(_status == 400)
-        _statuscode = "HTTP/1.1 400 Bad Request\r\n";
+        this->_statuscode = "HTTP/1.1 400 Bad Request\r\n";
         else if(_status == 401)
-        _statuscode = "HTTP/1.1 401 Unauthorized\r\n";
+        this->_statuscode = "HTTP/1.1 401 Unauthorized\r\n";
         else if(_status == 403)
-        _statuscode = "HTTP/1.1 403 Forbidden\r\n";
+        this->_statuscode = "HTTP/1.1 403 Forbidden\r\n";
         else if(_status == 404)
-        _statuscode = "HTTP/1.1 404 Not Found\r\n";
+        this->_statuscode = "HTTP/1.1 404 Not Found\r\n";
         else if(_status == 405)
-        _statuscode = "HTTP/1.1 405 Method Not Allowed\r\n";
+        this->_statuscode = "HTTP/1.1 405 Method Not Allowed\r\n";
         else if(_status == 500)
-        _statuscode = "HTTP/1.1 500 Internal Server Error\r\n";
+        this->_statuscode = "HTTP/1.1 500 Internal Server Error\r\n";
         else if(_status == 501)
-        _statuscode = "HTTP/1.1 501 Not Implemented\r\n";
+        this->_statuscode = "HTTP/1.1 501 Not Implemented\r\n";
     };
 
         std::string error_page(request &req,std::ifstream &input_file);
@@ -138,14 +147,13 @@ class request{
         void setLoc(const location_obj& loc);
         void setLocPath(const std::string& path);
         void setIsDone(const bool& isdone);
-        int  analyzeRequest() const;
-        void matchLocation(std::string uri, client_config clt, int sck);
         void clear();
 };
 
 typedef std::map<int, request> requests;
+void matchLocation(request& req, std::string uri, client_config clt, int sck);
+int  analyzeRequest(request &req);
 request pRequest(std::string& buffer, client_config clt, int sck, requests& map, int ret_read);
-bool MethodPost(request& req, client_config clt);
 
 class client
 {

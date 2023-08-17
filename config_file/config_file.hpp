@@ -32,6 +32,7 @@ public:
 	void	loc_setter(std::string &str, std::string &attr);
 	void	loc_getter();
 	std::string	get_location()const;
+	std::string	get_upload()const;
 	std::string	get_root()const;
 	void	ft_add_methods_list(std::string &after);
 	void	ft_set_bool(std::string &befor, std::string &after);

@@ -104,9 +104,11 @@ std::string  response::cgi_exec(request &req)
     int fd_in = 0;
     int fd_out;
     std::string res;
+    // req.getLoc().get_upload()
+    std::string local = req.getLoc().get_upload() + req.getBody();
     std::string cgi =  "/tmp/"+generateRandomFileName(".txt");
     if (req.getMethod() == "POST")
-        fd_in = open("/tmp/post.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+        fd_in = open(local.c_str(), O_RDWR | O_CREAT, 0666);
     else if (req.getMethod() == "GET")
         fd_out = open(cgi.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
     setEnv(req);
@@ -201,11 +203,11 @@ std::string response::serveCgi(request &req)
     {
        std::string path = req._res->cgi_exec(req);
         std::cout << "path :: " << path << std::endl;
-        this->file.open(path.c_str(), std::ios::in);
-        if(!file.is_open())
+        this->file_.open(path.c_str(), std::ios::in);
+        if(!file_.is_open())
         {
             //set 403
-            std::cout << "file not open" << std::endl;
+            std::cout << "---file--- not open" << std::endl;
             exit(1);
         }
         else
@@ -223,7 +225,7 @@ std::string response::serveCgi(request &req)
         
         if(req.headerSent == true && !req._isDone){
             
-            this->file.read(this->buffer, 1024);
+            this->file_.read(this->buffer, 1024);
             std::streamsize bytesRead = this->file.gcount();
              if(bytesRead > 0)
              { 
@@ -234,7 +236,7 @@ std::string response::serveCgi(request &req)
             else
             {
                 req._isDone = true;
-                this->file.close();
+                this->file_.close();
                 req._isOpen= false;
         
             }
