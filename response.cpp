@@ -70,7 +70,8 @@ std::string str(int  num)
 void   response::GetMethod(request &req)
 {
     std::cout << "URIIII" << req.getUri()<<std::endl;
-    std::string pat = req.getRoot()+"html/"+req._loc.get_index();
+    std::string pat = req.getRoot()+req._loc.get_index();
+    std::cout <<"pat====" <<pat << std::endl;
     std::string  path =req.getLocPath();
     DIR *dir = opendir(path.c_str());
      if(dir)
@@ -115,12 +116,12 @@ void   response::GetMethod(request &req)
           }
          else if(req._loc.get_auto_index())
          {
-            closedir(dir);
             req._res->autoindex(req);
             req.op = 2;
+            closedir(dir);
          }
         else
-        {std::cout << "aaaa" << std::endl;
+        {
             req.statuscode = 403;
              req.SetErrorStatusCode(403);
             req.setStatusCodePath(req);

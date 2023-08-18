@@ -163,7 +163,7 @@ int main(int ac, char **av)
 					std::cout << "it->forst >>>>>>>"<< it->first << std::endl;
 					it_sck = it->first;
 					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
-					req = it->second.get_rq_object();
+					map[it_sck] = it->second.get_rq_object();
 					std::map<std::string, std::string> headers = map[it_sck].getHeaders();
 					// for(std::map<std::string, std::string>::iterator ita = headers.begin(); ita != headers.end(); ita++)
 					// {
