@@ -1,12 +1,5 @@
 #include "prequest.hpp"
 
-// request::request(){
-//     std::cout << "request constructor called" << std::endl;
-// }
-
-// request::~request(){
-//     std::cout  << "destruct request" << std::endl;
-// }
 std::string request::to_str(int  num)
 {
     std::ostringstream conv;
@@ -32,8 +25,6 @@ std::map<std::string, std::string> request::getHeaders() const{
 std::string request::getBody() const{
     return _body;
 }
-
-
 
 std::string request::getServerName() const{
     return _serverName;
@@ -133,7 +124,6 @@ bool compare(std::string s1, std::string s2){
 int find(std::vector<std::string> list, std::string url){
     int i = 0;
     for (std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++, i++){
-        // std::cout << "list[i] : " << list[i] << std::endl;
         if (list[i].find(url) != std::string::npos)
             return i;
     }
@@ -172,13 +162,9 @@ void customSort(std::vector<std::string>& arr) {
 
 typedef std::vector<location_obj> location;
 void matchLocation(request& req,std::string url, client_config clt, int sck){
-    // match request url with location
-    // setLocPath(std:npos);
-    // check content length
 
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);
-    // if (myserver)
-    //     std::cout << "server not found" << std::endl;
+
     Server_obj server = myserver->second;
     if(req.getContentLenght() < server.getBodySize()){
         std::cout << "LARGE BODY CONTENT" << std::endl;
@@ -200,13 +186,8 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
         unsorted_list.push_back(cpy_location[it].get_location());
     }
     // sort all location by lenght in loc_list in descending order
-
-    std::cout << "********************* to sorting" << std::endl;
     customSort(loc_list);
-    // loc_list::iterator it = loc_list.begin();
-    // for(size_t it= 0; it < loc_list.size() ; it++){
-    //     std::cout << "listtt *************** "<<loc_list[it] << std::endl;
-    // }
+
     // then match the uri starting from the top of list
     std::string root;
     std::string tmp_url = url;
@@ -277,18 +258,16 @@ int  analyzeRequest(request& req){
     const std::string& method = req.getMethod();
 
     // Method Validation
-    if (method == "GET" || method == "POST" || method == "DELETE") {
-        std::cout << "Method is valid" << std::endl;
-    } else {
+    if (method == "GET" || method == "POST" || method == "DELETE");
+    else {
         req.statuscode = 405;
         req.SetErrorStatusCode(405);
         req.setStatusCodePath(req);
         req.op = 4;
     }
     // // http version validation
-    if (req._httpV == "HTTP/1.1") {
-        std::cout << "HTTP version is valid" << std::endl;
-    } else {
+    if (req._httpV == "HTTP/1.1");
+    else {
         req.statuscode = 405;
         req.SetErrorStatusCode(405);
         req.setStatusCodePath(req);
@@ -333,7 +312,4 @@ int  analyzeRequest(request& req){
     }
     return (1);
 }
-
-
-
 

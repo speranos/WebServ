@@ -7,35 +7,24 @@ bool canUploadToPath(const char *location)
         // Check read permissions
         if (access(location, R_OK) == 0)
         {
-            std::cout << "location exists and has read permission." << std::endl;
+            // std::cout << "location exists and has read permission." << std::endl;
             // Check write permissions
-            if (access(location, W_OK) == 0)
-            {
-                std::cout << "location has write permission." << std::endl;
-            }
+            if (access(location, W_OK) == 0);
             else
-            {
-                std::cout << "location does not have write permission." << std::endl;
-            }
+                std::cerr << "location does not have write permission." << std::endl;
+
             // Check execute permissions
-            if (access(location, X_OK) == 0)
-            {
-                std::cout << "location has execute permission." << std::endl;
-            }
+            if (access(location, X_OK) == 0);
             else
-            {
-                std::cout << "location does not have execute permission." << std::endl;
-            }
+                std::cerr << "location does not have execute permission." << std::endl;
         }
         else
-        {
-            std::cout << "location exists but does not have read permission." << std::endl;
-        }
+            std::cerr << "location exists but does not have read permission." << std::endl;
         return true;
     }
     else
     {
-        std::cout << "location does not exist." << std::endl;
+        std::cerr << "location does not exist." << std::endl;
         return false;
     }
 }
@@ -73,18 +62,9 @@ int hasIndexFiles(const char *dirPath)
 void response::MethodPost(request &req)
 {
     std::string upload_path = req._loc.get_upload();
-
-    // check if path support uploads and if it is the case, upload the file
-    // char *cmd  = NULL;
-    // cmd += "mv " + req.getBody() + " " + upload_path;
-    // strcat(cmd, "mv ");
-    // strcat(cmd, req.getBody().c_str());
-    // strcat(cmd, " ");
-    // strcat(cmd, upload_path.c_str());
-    std::cout << "**********cmd >> " << ("mv " + req.getBody() + " " + upload_path).c_str() << " <<" << std::endl;
     if (canUploadToPath(upload_path.c_str()))
     {
-        std::cout << "**********upload path >> " << upload_path << std::endl;
+        // std::cout << "**********upload path >> " << upload_path << std::endl;
         if (system(("mv " + req.getBody() + " " + upload_path).c_str()))
         {
             system(("rm " + req.getBody()).c_str());
@@ -117,9 +97,9 @@ void response::MethodPost(request &req)
                     {
                         if (req.getLoc().get_cgi() == true)
                         {
-                             
+
                             std::string a = req._res->cgi_exec(req);
-                            std::cout << "cgi results" << a<< std::endl;
+                            std::cout << "cgi results" << a << std::endl;
                             req.op = 1;
                         }
                         else

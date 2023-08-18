@@ -16,9 +16,7 @@ bool writePerm(const char* filename)
 
 void response::methodDelete(request& req){
         std::string myLocation = req.getLocPath();
-        // std::cout << "=====>" << myLocation << std::endl;
         struct stat fileInfo;
-
         // Check if it's a directory
         if (stat(myLocation.c_str(), &fileInfo) == 0)
         {
