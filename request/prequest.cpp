@@ -191,7 +191,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck, int ret
         std::string buffer;
         size_t bytes = 0;
         std::string bff;
-        bff.resize(32000);
+        bff.resize(1024);
         bff = stream.str();
         if (bff.find("\r\n\r\n") != std::string::npos) {
             bff = bff.substr(bff.find("\r\n\r\n") + 4);
@@ -206,7 +206,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck, int ret
     // Check if the entire body is successfully stored in the file
     std::cout << "body size: " << bodyFile.tellp() << std::endl;
     std::cout << "content len: " << req.getContentLenght() << std::endl;
-    if (req.getContentLenght() == (unsigned long)bodyFile.tellp()) {
+    if (req.getContentLenght() <= (unsigned long)bodyFile.tellp()) {
         std::cout << "Request body stored in file: " << filename << std::endl;
         // std::string ext = set_extension(req);
         // filename = filename.substr(0, filename.find(".bin")) + ext;

@@ -69,9 +69,7 @@ std::string str(int  num)
 
 void   response::GetMethod(request &req)
 {
-    std::cout << "URIIII" << req.getUri()<<std::endl;
     std::string pat = req.getRoot()+req._loc.get_index();
-    std::cout <<"pat====" <<pat << std::endl;
     std::string  path =req.getLocPath();
     DIR *dir = opendir(path.c_str());
      if(dir)
@@ -135,7 +133,7 @@ void   response::GetMethod(request &req)
         req.op = 1;
      }
     else if(access(req.getLocPath().c_str(),R_OK) == 0)
-    {   std::cout <<"test path   " <<req.getLocPath() << std::endl;
+    {   
         if(access(req.getLocPath().c_str(),F_OK) == 0)
         {
             req._res->SetStatusCode(200);
@@ -163,7 +161,6 @@ void   response::GetMethod(request &req)
 std::string  response::send_response_body(request &req)
 {
     std::string res;
-    std::cout << "which one too >>>> " << req.op << std::endl;
     if(req.op == 1){
         res = req._res->serveCgi(req);
     
@@ -497,7 +494,6 @@ std::string request::setErrorContentLenght(std::string path)
 {
     std::string res;
     std::string  path =req.getLocPath() + "/" + req._loc.get_index();
-    std::cout << "pathhhhhhh" << path << std::endl;
     if(!req._isOpen)
     {
         this->file.close();

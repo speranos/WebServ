@@ -158,7 +158,6 @@ std::string  response::cgi_exec(request &req)
         // if(req._res->status == EXIT_FAILURE)
 
         std::ifstream inputfile;
-        std::cout << "cgi :: " << cgi << std::endl;
         inputfile.open(cgi.c_str());
         res = "HTTP/1.1 200 OK\r\n";
         std::string ext = getExtension(req.getLocPath());
@@ -170,11 +169,9 @@ std::string  response::cgi_exec(request &req)
 
         while(getline(inputfile,line))
         {
-            //std::cout << "line :: " << line << std::endl;
             res += line;
             res += "\n";
         }
-        //std::cout << "res :: " << res << std::endl;
         inputfile.close();
         if (fd_in != 0)
             close(fd_in);
@@ -206,9 +203,10 @@ std::string response::serveCgi(request &req)
         this->file.open(path.c_str(), std::ios::in);
         if(!file.is_open())
         {
-            //set 403
-            std::cout << "---file--- not open" << std::endl;
-            exit(1);
+            req.statuscode = 403;
+            req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
         }
         else
             req._isOpen= true;
