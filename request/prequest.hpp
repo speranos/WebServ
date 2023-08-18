@@ -31,6 +31,7 @@ class request{
         std::map<std::string, std::string> _headers;
         std::string _body;
         std::string _serverName;
+        std::string _root;
         std::string _locPath;
          bool    _isOpen;
         bool    headerSent;
@@ -130,6 +131,7 @@ class request{
         int         getStatusCode() const;
         std::string getServerName() const;
         std::string getLocPath() const;
+        std::string getRoot() const;
         int         getFd() const;
         location_obj getLoc() const;
         unsigned long         getContentLenght() const;
@@ -146,6 +148,7 @@ class request{
         void setContentLenght(const unsigned long& content_lenght);
         void setLoc(const location_obj& loc);
         void setLocPath(const std::string& path);
+        void setRoot(const std::string& path);
         void setIsDone(const bool& isdone);
         void clear();
 };

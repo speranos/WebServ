@@ -70,6 +70,7 @@ std::string str(int  num)
 void   response::GetMethod(request &req)
 {
     std::cout << "URIIII" << req.getUri()<<std::endl;
+    std::string pat = req.getRoot()+"html/"+req._loc.get_index();
     std::string  path =req.getLocPath();
     DIR *dir = opendir(path.c_str());
      if(dir)
@@ -86,10 +87,20 @@ void   response::GetMethod(request &req)
             }
             else if(req.getUri().empty() ||req.getUri().find("/")!=std::string::npos)
             {
+                
+                if(access(pat.c_str(),F_OK) == 0){
                 req._res->SetStatusCode(200);
                 req._res->set_get_con_type(req);
                 req._res->setContentLenghtindex(req);
                 req.op = 6;
+                }
+                else{
+                    req.statuscode = 403;
+                    req.SetErrorStatusCode(403);
+                    req.setStatusCodePath(req);
+                    req.op = 4;
+                }
+
                 closedir(dir);
             }
              else if(!access(req.getLocPath().c_str(),R_OK))
@@ -104,12 +115,12 @@ void   response::GetMethod(request &req)
           }
          else if(req._loc.get_auto_index())
          {
+            closedir(dir);
             req._res->autoindex(req);
             req.op = 2;
-            closedir(dir);
          }
         else
-        {
+        {std::cout << "aaaa" << std::endl;
             req.statuscode = 403;
              req.SetErrorStatusCode(403);
             req.setStatusCodePath(req);
@@ -318,7 +329,6 @@ void response::Send(int sck,request &req)
     
      if( req._isDone == false){
         res = req._res->send_response_body(req);
-        std::cout << res << std::endl;
          int count = send(sck,res.c_str(), res.size(), 0);
          if(count == -1)
          {
@@ -485,7 +495,7 @@ std::string request::setErrorContentLenght(std::string path)
     std::string response::indexfile(request &req)
 {
     std::string res;
-    std::string  path =req.getLocPath() + req._loc.get_index();
+    std::string  path =req.getLocPath() + "/" + req._loc.get_index();
     std::cout << "pathhhhhhh" << path << std::endl;
     if(!req._isOpen)
     {
@@ -497,8 +507,7 @@ std::string request::setErrorContentLenght(std::string path)
             req.SetErrorStatusCode(403);
             req.setStatusCodePath(req);
             req.op = 4;
-            req._isDone = false;
-            std::cout << "--file- not open" << std::endl;
+            // req._isDone = false;
             //exit(1);
         }
         else

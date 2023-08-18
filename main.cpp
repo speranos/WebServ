@@ -188,6 +188,8 @@ int main(int ac, char **av)
 							}
 							else if(map[it_sck].getIsDone() == true)
 								map[it_sck]._res->MethodPost(map[it_sck]);
+					else if(map[it_sck].getMethod() == "DELETE")
+						map[it_sck]._res->methodDelete(req);
 					}
 					buffer.clear();
 					buffer.resize(33000);

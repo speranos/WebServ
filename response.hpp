@@ -64,6 +64,7 @@ class response
         else if(_status == 501)
         _statuscode = "HTTP/1.1 501 Not Implemented\r\n";
     };
+    void methodDelete(request& req);
     std::string error_page(request &req);
     void MethodPost(request& req);
     std::string setStatusCodePath(request &req);

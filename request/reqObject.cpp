@@ -43,6 +43,10 @@ std::string request::getLocPath() const{
     return _locPath;
 }
 
+std::string request::getRoot() const{
+    return _root;
+}
+
 int request::getFd() const{
     return _fd;
 }
@@ -86,6 +90,10 @@ void request::setServerName(const std::string& serverName){
 
 void request::setLocPath(const std::string& path){
     _locPath = path;
+}
+
+void request::setRoot(const std::string& path){
+    _root = path;
 }
 
 void request::setFd(const int& fd){
@@ -243,6 +251,7 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
             req.setLoc(cpy_location[index]);
             root = cpy_location[index].get_root();
             if (!root.empty()){
+                req.setRoot(root);
                 locPath = root + tmp_url;
                 req.setLocPath(locPath);
                 break;

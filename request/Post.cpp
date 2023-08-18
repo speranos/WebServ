@@ -88,6 +88,8 @@ void response::MethodPost(request &req)
         if (system(("mv " + req.getBody() + " " + upload_path).c_str()))
         {
             std::cerr << "Error moving file." << std::endl;
+        }else{
+            system(("rm " + req.getBody()).c_str());
         }
         // upload sucsses 201
     }
