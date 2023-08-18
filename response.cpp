@@ -69,6 +69,7 @@ std::string str(int  num)
 
 void   response::GetMethod(request &req)
 {
+    std::cout << "URIIII" << req.getUri()<<std::endl;
     std::string  path =req.getLocPath();
     DIR *dir = opendir(path.c_str());
      if(dir)
@@ -77,10 +78,18 @@ void   response::GetMethod(request &req)
         if(!req._loc.get_index().empty()) 
           { 
 
-            if(req._loc.get_cgi() && ((path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)))
+            if(req._loc.get_cgi() &&((path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)))
             {
                 std::string i = req._res->cgi_exec(req);
                 req.op = 1;
+                closedir(dir);
+            }
+            else if(req.getUri().empty() ||req.getUri().find("/")!=std::string::npos)
+            {
+                req._res->SetStatusCode(200);
+                req._res->set_get_con_type(req);
+                req._res->setContentLenghtindex(req);
+                req.op = 6;
                 closedir(dir);
             }
              else if(!access(req.getLocPath().c_str(),R_OK))
@@ -113,9 +122,9 @@ void   response::GetMethod(request &req)
         std::string i = req._res->cgi_exec(req);
         req.op = 1;
      }
-    else if(access(req.getLocPath().c_str(),F_OK) == 0)
-    {
-        if(access(req.getLocPath().c_str(),R_OK) == 0)
+    else if(access(req.getLocPath().c_str(),R_OK) == 0)
+    {   std::cout <<"test path   " <<req.getLocPath() << std::endl;
+        if(access(req.getLocPath().c_str(),F_OK) == 0)
         {
             req._res->SetStatusCode(200);
             req._res->set_get_con_type(req);
@@ -142,15 +151,37 @@ void   response::GetMethod(request &req)
 std::string  response::send_response_body(request &req)
 {
     std::string res;
-    if((req.op == 1 && req._loc.get_cgi() )|| (req.getMethod() == "POST" && req._loc.get_cgi() && req.op == 1)){
-        std::cout <<" errrrrrrror"<<res << std::endl;
+    std::cout << "which one too >>>> " << req.op << std::endl;
+    if(req.op == 1){
         res = req._res->serveCgi(req);
+    
     }
-    else if(req.op == 2)
+    else if(req.op == 5)
+    {
+        res = "HTTP/1.1 301 Moved Permanently\r\n";
+        res +="Location: " + req._loc.get_redir()+"\r\n";
+        res += "Content-Length: 0\r\n";
+        req._isDone = true; 
+        return(res);
+    }
+    else if(req.op == 7)
+    {
+        res = "HTTP/1.1 201 Created\r\n\r\n";
+        req._isDone = true; 
+        return res;
+    }
+    else if(req.op == 6){
+        res = req._res->indexfile(req);
+        return(res);
+    }
+    else if(req.op == 2){
         res = req._res->get_autoindex();
+        req._isDone = true; 
+        return res;
+    }
     else if(req.op == 3)
         res = req._res->FinalString(req);
-     else if(req.op != 1 && req.op != 2 && req.op != 3){
+     else if(req.op == 4){
         std::ifstream input_file;
          res = req.error_page(req,input_file);
          
@@ -287,7 +318,7 @@ void response::Send(int sck,request &req)
     
      if( req._isDone == false){
         res = req._res->send_response_body(req);
-        std::cout << "----------"<<req.op << std::endl;
+        std::cout << res << std::endl;
          int count = send(sck,res.c_str(), res.size(), 0);
          if(count == -1)
          {
@@ -450,3 +481,71 @@ std::string request::setErrorContentLenght(std::string path)
         this->_Content_Lenght += "Content-Length: " + str(file_size) + "\r\n";
         return(this->_Content_Lenght);
     }
+
+    std::string response::indexfile(request &req)
+{
+    std::string res;
+    std::string  path =req.getLocPath() + req._loc.get_index();
+    std::cout << "pathhhhhhh" << path << std::endl;
+    if(!req._isOpen)
+    {
+        this->file.close();
+        this->file.open(path.c_str(), std::fstream::binary);
+        if(!file.is_open())
+        {
+            req.statuscode = 403;
+            req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
+            req._isDone = false;
+            std::cout << "--file- not open" << std::endl;
+            //exit(1);
+        }
+        else
+            req._isOpen = true;
+    }
+    if(req._isOpen)
+    {
+        if(req.headerSent == false){
+       res = req._res->getStatusCode();
+       res.append("Content-Type: text/html\r\n");
+       res.append(req._res->getContentLenght());
+       res.append("\r\n");
+        req.headerSent = true;  
+        }
+        
+        if(req.headerSent == true && !req._isDone){
+            
+            this->file.read(this->buffer, sizeof(this->buffer));
+            std::streamsize bytesRead = this->file.gcount();
+             if(bytesRead > 0)
+             { 
+                std::string chunk = std::string(this->buffer,bytesRead);
+                 res.append(chunk);
+				req._isOpen = true;
+            }
+            else
+            {
+                req._isDone = true;
+                this->file.close();
+                req._isOpen = false;
+        
+            }
+        }
+    }
+    
+    return res;
+}
+void response::setContentLenghtindex(request &req)
+    {
+        std::string path = req.getLocPath() + req._loc.get_index();
+        // std::map<std::string, std::string> con_type = req.getHeade;rs();
+        // std::string Content_type =  con_type["content-length"];
+        // _Content_Lenght += "Content-Length: " + Content_type + "\r\n";
+        std::ifstream file(path.c_str(), std::ios::binary);
+        file.seekg(0, std::ios::end);
+        this->file_size = file.tellg();
+        std::cout << "file size is : " << file_size << std::endl;
+        file.close();
+        this->_Content_Lenght += "Content-Length: " + str(file_size) + "\r\n";
+    };

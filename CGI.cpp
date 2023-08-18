@@ -154,12 +154,12 @@ std::string  response::cgi_exec(request &req)
     {
         
         std::string line;
-        waitpid(this->pid, &req._res->status, WNOHANG);
+        waitpid(this->pid, NULL, 0);
         // if(req._res->status == EXIT_FAILURE)
 
-        std::ifstream input_file;
+        std::ifstream inputfile;
         std::cout << "cgi :: " << cgi << std::endl;
-        input_file.open(cgi.c_str());
+        inputfile.open(cgi.c_str());
         res = "HTTP/1.1 200 OK\r\n";
         std::string ext = getExtension(req.getLocPath());
         if (ext == "py")
@@ -168,14 +168,14 @@ std::string  response::cgi_exec(request &req)
             res += "\r\n";
         }
 
-        while(getline(input_file,line))
+        while(getline(inputfile,line))
         {
-            std::cout << "line :: " << line << std::endl;
+            //std::cout << "line :: " << line << std::endl;
             res += line;
             res += "\n";
         }
-        std::cout << "res :: " << res << std::endl;
-        input_file.close();
+        //std::cout << "res :: " << res << std::endl;
+        inputfile.close();
         if (fd_in != 0)
             close(fd_in);
         std::ofstream output_file;
@@ -203,8 +203,8 @@ std::string response::serveCgi(request &req)
     {
        std::string path = req._res->cgi_exec(req);
         std::cout << "path :: " << path << std::endl;
-        this->file_.open(path.c_str(), std::ios::in);
-        if(!file_.is_open())
+        this->file.open(path.c_str(), std::ios::in);
+        if(!file.is_open())
         {
             //set 403
             std::cout << "---file--- not open" << std::endl;
@@ -225,7 +225,7 @@ std::string response::serveCgi(request &req)
         
         if(req.headerSent == true && !req._isDone){
             
-            this->file_.read(this->buffer, 1024);
+            this->file.read(this->buffer, 1024);
             std::streamsize bytesRead = this->file.gcount();
              if(bytesRead > 0)
              { 
@@ -236,8 +236,8 @@ std::string response::serveCgi(request &req)
             else
             {
                 req._isDone = true;
-                this->file_.close();
-                req._isOpen= false;
+                this->file.close();
+                req._isOpen = false;
         
             }
         }

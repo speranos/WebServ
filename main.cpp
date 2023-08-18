@@ -126,7 +126,7 @@ int main(int ac, char **av)
 		sck = 0;
 		// char buffer[1025] = {0};
 		std::string buffer;
-		buffer.resize(1024);
+		buffer.resize(33000);
 		// signal(SIGPIPE, SIG_IGN);
 
 		while(1)
@@ -150,7 +150,7 @@ int main(int ac, char **av)
 
 					if(acceptedSockets.find(sck) == acceptedSockets.end())
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
-					ret_read = read(sck , (void *)buffer.c_str(), 1024);
+					ret_read = read(sck , (void *)buffer.c_str(), 33000);
 					std::cout << " ret_readddd >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << ret_read << std::endl;
 					
 					std::cout << buffer << std::endl;
@@ -175,15 +175,22 @@ int main(int ac, char **av)
 					// req._res->set_get_con_type(req);
 					// req._res->setContentLenght(req);
 					std::cout << "aaaa*******************************" << map[it_sck].getLocPath() <<std::endl;
-					if(map[it_sck].getMethod() == "GET")
-						map[it_sck]._res->GetMethod(map[it_sck]);
-					else if((map[it_sck].getMethod() == "POST") && map[it_sck].getIsDone() == true){
-						std::cout << "aaaa"<<std::endl;
-						map[it_sck]._res->MethodPost(map[it_sck]); 
-						//map[it_sck].op = 1;
+					if(map[it_sck].getMethod() == "GET"){
+						if(!map[it_sck]._loc.get_redir().empty())
+							map[it_sck].op = 5;
+						else
+							map[it_sck]._res->GetMethod(map[it_sck]);
+					}
+					else if((map[it_sck].getMethod() == "POST")){
+						if(!map[it_sck]._loc.get_redir().empty())
+							{
+								map[it_sck].op = 5;
+							}
+							else if(map[it_sck].getIsDone() == true)
+								map[it_sck]._res->MethodPost(map[it_sck]);
 					}
 					buffer.clear();
-					buffer.resize(1024);
+					buffer.resize(33000);
 					if(map[it_sck].getIsDone() == true)
 					{
 						std::cout << "WRIIIITEEEE "<< std::endl;

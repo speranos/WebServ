@@ -36,6 +36,9 @@ std::vector<location_obj>	Server_obj::get_location()
 // {
 // 	this->address = address;
 // }
+unsigned long	Server_obj::getBodySize(){
+	return (this->body_size);
+}
 
 
 void	Server_obj::setter(std::string &str, std::string &attr)
@@ -49,6 +52,8 @@ void	Server_obj::setter(std::string &str, std::string &attr)
 		else
 			host = attr;
 	}
+	else if(str == "body_size")
+		body_size = atoi(attr.c_str());
 	else if(str == "error_page")
 		ft_add_error_page(attr);
 	else

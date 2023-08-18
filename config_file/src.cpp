@@ -11,27 +11,32 @@ void	ft_read(char *file_name, Server &config_file)
 	{
 		ft_add_server(file, config_file);
 	}
-	// final_check(config_file);
+	final_check(config_file);
 }
 
-// void	final_check(Server &config_file)
-// {
-// 	Server::iterator iter = config_file.begin();
-// 	typedef std::vector<location_obj> location;
-// 	location::iterator iter_loc;
-// 	while(iter != config_file.end())
-// 	{
-// 		if(iter->get_host().size() == 0 || iter->get_port().size() == 0 || iter->get_location().size() == 0)
-// 			throw std::invalid_argument("ERROR: Unclosed server !");
-// 		iter_loc = iter->get_location().begin();
-// 		while(iter_loc != iter->get_location().end())
-// 		{
-// 			if(iter_loc->get_root().size() == 0 || iter_loc->)
-// 		}
-		
-// 		iter++;
-// 	}
-// }
+void	final_check(Server &config_file)
+{
+	Server::iterator iter = config_file.begin();
+	typedef std::vector<location_obj> location;
+	location::iterator iter_loc;
+	location tmp_loc;
+	while(iter != config_file.end())
+	{
+		if(iter->get_host().size() == 0 || iter->get_port().size() == 0 || iter->get_location().size() == 0)
+			throw std::invalid_argument("ERROR: missing some info !");
+		else if(iter->get_location().size() == 0)
+			throw std::invalid_argument("ERROR: missing location !");
+		tmp_loc = iter->get_location();
+		iter_loc = tmp_loc.begin();
+		while(iter_loc != tmp_loc.end())
+		{
+			if(iter_loc->get_root().size() == 0 || iter_loc->get_method_list().size() == 0)
+				throw std::invalid_argument("ERROR: missing some info !");
+			iter_loc++;
+		}
+		iter++;
+	}
+}
 
 void	ft_add_server(std::fstream &file, Server &server)
 {

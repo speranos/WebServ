@@ -191,7 +191,7 @@ bool storeRequestBody(std::istringstream& stream, request& req, int sck, int ret
         std::string buffer;
         size_t bytes = 0;
         std::string bff;
-        bff.resize(1024);
+        bff.resize(32000);
         bff = stream.str();
         if (bff.find("\r\n\r\n") != std::string::npos) {
             bff = bff.substr(bff.find("\r\n\r\n") + 4);
@@ -235,7 +235,7 @@ bool writePerm(const char* filename)
 
 void methodDelete(request& req){
         std::string myLocation = req.getLocPath();
-        std::cout << "=====>" << myLocation << std::endl;
+        // std::cout << "=====>" << myLocation << std::endl;
         struct stat fileInfo;
 
         // Check if it's a directory

@@ -166,10 +166,19 @@ typedef std::vector<location_obj> location;
 void matchLocation(request& req,std::string url, client_config clt, int sck){
     // match request url with location
     // setLocPath(std:npos);
+    // check content length
+
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);
     // if (myserver)
     //     std::cout << "server not found" << std::endl;
     Server_obj server = myserver->second;
+    if(req.getContentLenght() < server.getBodySize()){
+        std::cout << "LARGE BODY CONTENT" << std::endl;
+        // req.statuscode = 400;
+        // req.SetErrorStatusCode(400);
+        // req.setStatusCodePath(req);
+        // req.op = 4;
+    }
     std::vector<location_obj> locations = server.get_location();
 
 
@@ -214,6 +223,22 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
                         index = r;
                     }
                 }
+            }
+            std::list<std::string> mylist;
+            int done = 0;
+            mylist = locations[index].get_method_list();
+            std::list<std::string>::iterator t = mylist.begin();
+            for(; t != mylist.end() ; t++){
+                if(req.getMethod() == *t)
+                    done = 1;
+            }
+            if(!done){
+                // Method not allowed in location
+                std::cout << "Method not allowed in location" << std::endl;
+                // req.statuscode = 400;
+                // req.SetErrorStatusCode(400);
+                // req.setStatusCodePath(req);
+                // req.op = 4;
             }
             req.setLoc(cpy_location[index]);
             root = cpy_location[index].get_root();

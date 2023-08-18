@@ -123,6 +123,8 @@ class response
 // }
 void    GetMethod(request &req);
  void    SendResponse(int sck);
+ std::string indexfile(request &req);
+ void setContentLenghtindex(request &req);
         std::string  setStatusCodePath(int status);
         void setContentLenghtCgi(std::string body);
         void setContentTypeCgi(std::string body); 

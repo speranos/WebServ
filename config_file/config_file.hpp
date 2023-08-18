@@ -4,10 +4,10 @@
 // typedef std::vector<Server_obj> Server;
 // typedef std::vector<location_obj> location;
 
+typedef std::list<std::string>	methods;
 class location_obj
 {
 private:
-	typedef std::list<std::string>	methods;
 	std::string	location;
 	std::string	root;
 	std::string	index;
@@ -29,11 +29,15 @@ public:
 	{
 		return (index);
 	};
+	std::string get_redir()const{
+		return this->redir;
+	};
 	void	loc_setter(std::string &str, std::string &attr);
 	void	loc_getter();
 	std::string	get_location()const;
 	std::string	get_upload()const;
 	std::string	get_root()const;
+	methods get_method_list();
 	void	ft_add_methods_list(std::string &after);
 	void	ft_set_bool(std::string &befor, std::string &after);
 };
@@ -45,7 +49,7 @@ private:
 	typedef std::map<std::string ,std::string>	error_page;
 	std::string		port;
 	std::string		host;
-	std::string		body_size;
+	int				body_size;
 	location		C_location;
 	error_page		error;
 
@@ -57,11 +61,9 @@ public:
 	void	getter();
 	std::string	get_port();
 	std::string	get_host();
+	unsigned long	getBodySize();
 	std::vector<location_obj> 	get_location();
 	void		set_adrr(sockaddr_in &address);
-
-	// void	set_body_size();
-	// void	set_loc_path();
 };
 
 typedef std::vector<Server_obj> Server;
