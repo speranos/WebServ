@@ -150,7 +150,7 @@ int main(int ac, char **av)
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck, (void *)buffer.c_str(), 1024);
 
-					std::cout << buffer << std::endl;
+					// std::cout << buffer << std::endl;
 					rq = pRequest(buffer, clt_config, sck, map, ret_read);
 					// std::cout << "location *************** " << map[sck].getLocPath() << std::endl;
 					ft_add_client(sck, new_clt, rq, clt);

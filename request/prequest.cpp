@@ -237,6 +237,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
         analyzeRequest(req);
         matchLocation(req, req.getUri() ,clt, sck);
     }
+    
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);
     req.setServerName(myserver->second.get_host());
     req.setFd(sck);

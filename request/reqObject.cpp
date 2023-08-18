@@ -249,7 +249,7 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
             break;
 
     }
-    std::cout << "loc_path >>" << req.getLocPath() << std::endl;       
+    // std::cout << "loc_path >>" << req.getLocPath() << std::endl;       
 }
 
 

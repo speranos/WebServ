@@ -10,13 +10,17 @@ bool canUploadToPath(const char *location)
             // std::cout << "location exists and has read permission." << std::endl;
             // Check write permissions
             if (access(location, W_OK) == 0);
-            else
+            else{
                 std::cerr << "location does not have write permission." << std::endl;
+                return false;
+            }
 
             // Check execute permissions
             if (access(location, X_OK) == 0);
-            else
+            else{
                 std::cerr << "location does not have execute permission." << std::endl;
+                return false;
+            }
         }
         else
             std::cerr << "location exists but does not have read permission." << std::endl;
@@ -65,12 +69,11 @@ void response::MethodPost(request &req)
     if (canUploadToPath(upload_path.c_str()))
     {
         // std::cout << "**********upload path >> " << upload_path << std::endl;
-        if (system(("mv " + req.getBody() + " " + upload_path).c_str()))
+        if (!system(("mv " + req.getBody() + " " + upload_path).c_str()))
         {
-            system(("rm " + req.getBody()).c_str());
-            std::cerr << "Error moving file." << std::endl;
+            // upload sucsses 201 respond
+
         }
-        // upload sucsses 201
     }
     else
     {
@@ -90,6 +93,10 @@ void response::MethodPost(request &req)
                 if (upload_path.find_last_of("/") + 1)
                 {
                     // 301 redirection
+
+
+
+
                 }
                 else
                 {
