@@ -26,6 +26,7 @@ class request{
         std::string _uri;
         std::string port;
          int op;
+         int done;
         unsigned int file_size;
         char    buffer[BUFF_SIZE];
         std::string _httpV;

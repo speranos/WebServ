@@ -70,7 +70,6 @@ std::string response::set_cgi_executable(request &req)
     std::string path = req.getLocPath();
     std::string res;
     std::string ext = getExtension(path);
-    std::cout << "ext :: " << ext << std::endl;
     if(ext == "php"){
         res = "/usr/bin/php-cgi";
         return res;
@@ -112,12 +111,7 @@ std::string  response::cgi_exec(request &req)
     else if (req.getMethod() == "GET")
         fd_out = open(cgi.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
     setEnv(req);
-    std::cout << "in file ===> " << fd_in << std::endl;
     char **env = env_to_char();
-    for (int i = 0;env[i] != NULL ;i++)
-    {
-        std::cout << env[i] << std::endl;
-    }
     lseek(fd_in, 0, SEEK_SET);
     std::string path = set_cgi_executable(req);
     this->pid = fork();
@@ -160,7 +154,6 @@ std::string  response::cgi_exec(request &req)
         
         std::string line;
         waitpid(this->pid, NULL, 0);
-        // if(req._res->status == EXIT_FAILURE)
 
         std::ifstream inputfile;
         inputfile.open(cgi.c_str());
@@ -177,7 +170,6 @@ std::string  response::cgi_exec(request &req)
             res += line;
             res += "\n";
         }
-        std::cout << res<< std::endl;
         inputfile.close();
         if (fd_in != 0)
             close(fd_in);

@@ -65,15 +65,14 @@ int hasIndexFiles(const char *dirPath)
 
 void response::MethodPost(request &req)
 {
-    // std::cout << "*****************gsrgr*************" << std::endl;
     if(req.getFlag() == true){
         // cgi
-        std::cout << "dasdas" << std::endl;
+        // std::cout << "dasdas" << std::endl;
         if (req.getLoc().get_cgi() == true)
         {
 
             std::string a = req._res->cgi_exec(req);
-            std::cout << "cgi results" << a << std::endl;
+            // std::cout << "cgi results" << a << std::endl;
             req.op = 1;
         }
         else
@@ -119,7 +118,7 @@ void response::MethodPost(request &req)
                         if (req.getLoc().get_cgi() == true)
                         {
 
-                            std::cout << "cgi results" << std::endl;
+                            // std::cout << "cgi results" << std::endl;
                             std::string a = req._res->cgi_exec(req);
                             req.op = 1;
                         }
@@ -143,11 +142,11 @@ void response::MethodPost(request &req)
             else
             {
                 // file
-                std::cout << "******************************" << std::endl;
+                // std::cout << "******************************" << std::endl;
                 if (req.getLoc().get_cgi() == true)
                 {
                     std::string a = req._res->cgi_exec(req);
-                    std::cout << "cgi results" << a << std::endl;
+                    // std::cout << "cgi results" << a << std::endl;
                     req.op = 1;
                 }
                 else

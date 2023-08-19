@@ -174,7 +174,7 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
 
     Server_obj server = myserver->second;
     if(req.getContentLenght() > server.getBodySize() && server.getBodySize_string() != "-1"){
-        std::cout << "body_size========== " << server.getBodySize() << std::endl;
+        // std::cout << "body_size========== " << server.getBodySize() << std::endl;
         std::cout << "LARGE BODY CONTENT" << std::endl;
         req.statuscode = 413;
         req.SetErrorStatusCode(413);
@@ -209,7 +209,7 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
             int index = find(unsorted_list, loc_list[x]);
             if(index == -1){
 
-                req.statuscode = 400;
+                req.statuscode = 405;
                 req.SetErrorStatusCode(400);
                 req.setStatusCodePath(req);
                 req.op = 4;
@@ -222,20 +222,22 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
                 }
             }
             std::list<std::string> mylist;
-            int done = 0;
+             req.done = 0;
             mylist = locations[index].get_method_list();
             std::list<std::string>::iterator t = mylist.begin();
             for(; t != mylist.end() ; t++){
                 if(req.getMethod() == *t)
-                    done = 1;
+                    req.done = 1;
             }
-            if(!done){
+            if(!req.done){
                 // Method not allowed in location
                 std::cout << "Method not allowed in location" << std::endl;
-                // req.statuscode = 400;
-                // req.SetErrorStatusCode(400);
-                // req.setStatusCodePath(req);
-                // req.op = 4;
+                req.statuscode = 405;
+                req.SetErrorStatusCode(405);
+                req.setStatusCodePath(req);
+                req.op = 4;
+
+                 break;
             }
             req.setLoc(cpy_location[index]);
             root = cpy_location[index].get_root();

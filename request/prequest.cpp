@@ -47,7 +47,7 @@ std::string set_extension(request req){
         contentType = ".bin";
     } else {
         contentType = head["Content-Type"];
-        std::cout << "Content type =============================>>>"<<contentType << std::endl;
+        // std::cout << "Content type =============================>>>"<<contentType << std::endl;
     }
     std::string extension;
     size_t pos = contentType.find('\r');
@@ -185,7 +185,7 @@ void storeRequestBody(std::istringstream& stream, request& req, int sck, int ret
     bff.clear();
     // Check if the entire body is successfully stored in the file
     if (req.getContentLenght() <= (unsigned long)bodyFile.tellp()) {
-        std::cout << "Request body stored in file: " << filename << std::endl;
+        // std::cout << "Request body stored in file: " << filename << std::endl;
         bodyFile.close();
         req.setBody(filename);
         req.setIsDone(true);
@@ -228,7 +228,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
         unsigned long len;
         std::istringstream (it->second) >> len;
         req.setContentLenght(len);  
-            std::cout << "parsing request ****** sck" << sck << std::endl;
+            // std::cout << "parsing request ****** sck" << sck << std::endl;
     }
 
     if(req.getMethod() == "POST"){
@@ -236,7 +236,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     }
 
     if (req.getIsDone() == true){
-        std::cout << "**************" << std::endl;
+        // std::cout << "**************" << std::endl;
         analyzeRequest(req);
         matchLocation(req, req.getUri() ,clt, sck);
     }

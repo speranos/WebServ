@@ -281,7 +281,6 @@ std::string response::FinalString(request &req)
             req.setStatusCodePath(req);
             req.op = 4;
             req._isDone = false;
-            std::cout << "--file- not open" << std::endl;
             //exit(1);
         }
         else
@@ -362,9 +361,10 @@ void    response::autoindex(request &req)
     else
     {
        req.statuscode = 404;
+       req.SetErrorStatusCode(404);
             req.setStatusCodePath(req);
             req.op = 4;
-        exit(1);
+        // exit(1);
     }
     this->_autoindex = "HTTP/1.1 200 OK\r\n";
     this->_autoindex += "Content-Type: text/html\r\n";
@@ -427,7 +427,6 @@ std::string request::setStatusCodePath(request &req)
 std::string request::error_page(request &req,std::ifstream &input_file)
 {
     std::string res;
-    std::cout << "file not open" << std::endl;
     std::string path = req.setStatusCodePath(req);
     if(!req._isOpen)
     {
@@ -435,9 +434,10 @@ std::string request::error_page(request &req,std::ifstream &input_file)
         input_file.open(path.c_str(), std::fstream::binary);
         if(!input_file.is_open())
         {
-           // req._res->statuscode = 403;
-            //req._res->setStatusCodePath(req);
-            //req.op = 4;
+           req.statuscode = 403;
+           req.SetErrorStatusCode(405);
+            req.setStatusCodePath(req);
+            req.op = 4;
             
             //exit(1);
         }
@@ -476,9 +476,6 @@ std::string request::error_page(request &req,std::ifstream &input_file)
 }
 std::string request::setErrorContentLenght(std::string path)
     {
-        // std::map<std::string, std::string> con_type = req.getHeaders();
-        // std::string Content_type =  con_type["content-length"];
-        // _Content_Lenght += "Content-Length: " + Content_type + "\r\n";
         
         std::ifstream file(path.c_str(), std::ios::binary);
         file.seekg(0, std::ios::end);
@@ -543,9 +540,7 @@ std::string request::setErrorContentLenght(std::string path)
 void response::setContentLenghtindex(request &req)
     {
         std::string path = req.getLocPath() + req._loc.get_index();
-        // std::map<std::string, std::string> con_type = req.getHeade;rs();
-        // std::string Content_type =  con_type["content-length"];
-        // _Content_Lenght += "Content-Length: " + Content_type + "\r\n";
+      
         std::ifstream file(path.c_str(), std::ios::binary);
         file.seekg(0, std::ios::end);
         this->file_size = file.tellg();

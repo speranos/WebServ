@@ -7,32 +7,7 @@
 #include "request/prequest.hpp"
 #include "response.hpp"
 #include <signal.h>
-// void sendResponse(int clientSocket, const std::string& content, const std::string& contentType) {
-// 	// std::cout << "\n\n" << content << "\n\n" << std::endl;
-//     std::string response =
-//         "HTTP/1.1 200 OK\r\n"
-//         "Content-Type: " + contentType + "\r\n"
-//         "Content-Length: " + std::to_string(content.length()) + "\r\n"
-//         "Connection: close\r\n"
-//         "\r\n" + content;
 
-//     send(clientSocket, response.c_str(), response.length(), 0);
-// }
-
-// std::string readFile(const std::string& filename) {
-//     std::ifstream file(filename);
-//     std::stringstream buffer;
-//     buffer << file.rdbuf();
-//     return buffer.str();
-// }
-
-// void printFileDescriptors(const fd_set& fds) {
-//     for (int fd = 0; fd < FD_SETSIZE; ++fd) {
-//         if (FD_ISSET(fd, &fds)) {
-//             std::cout << "File descriptor " << fd << " is set." << std::endl;
-//         }
-//     }
-// }
 void add_to_map(int sck, Server_obj server, client_config &clt)
 {
 	std::pair<int, Server_obj> pr;
@@ -47,7 +22,6 @@ int ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &
 	int acc_socket = 0;
 	client_config::iterator iter;
 	Server_obj tmp_serv;
-	// new_client			client;
 
 	if ((acc_socket = accept(sck, NULL, NULL)) > 0)
 	{
@@ -61,6 +35,7 @@ int ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &
 	}
 	else
 	{
+		std::cout << "ERHWRETJETYJ  " <<acc_socket << std::endl;
 		perror("accept failed");
 		exit(0);
 	}
@@ -70,7 +45,6 @@ int ft_new_connex(int sck, std::set<int> &acceptedSockets, int &MAX_FD, fd_set &
 void ft_add_client(int sck, new_client &new_clt, request &rq, client &clt)
 {
 	clt.sett_rq_object(rq);
-	// clt.sett_res_obj(res);
 	std::pair<int, client> pr;
 
 	pr.first = sck;
@@ -111,9 +85,7 @@ int main(int ac, char **av)
 
 		while (i < server.size())
 		{
-			// std::cout << "\n\nserver num :: " << i << "\n" << std::endl;
 			sck_fd = ft_creat_sock(server[i], &address);
-			std::cout << "setting sock " << sck_fd << std::endl;
 			FD_SET(sck_fd, &read_master_fds);
 			add_to_map(sck_fd, server[i], clt_config);
 			i++;
@@ -122,10 +94,8 @@ int main(int ac, char **av)
 		std::set<int> acceptedSockets;
 		MAX_FD = sck_fd;
 		sck = 0;
-		// char buffer[1025] = {0};
 		std::string buffer;
 		buffer.resize(1024);
-		// signal(SIGPIPE, SIG_IGN);
 
 		while (1)
 		{
@@ -135,7 +105,6 @@ int main(int ac, char **av)
 			printf("\n+++++++ Waiting for new connection ++++++++\n\n");
 			if (select(MAX_FD + 1, &read_fds, &write_fds, NULL, NULL) < 0)
 			{
-				std::cout << "reading from " << sck << std::endl;
 				perror("select failed");
 				exit(0);
 			}
@@ -149,33 +118,22 @@ int main(int ac, char **av)
 					if (acceptedSockets.find(sck) == acceptedSockets.end())
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck, (void *)buffer.c_str(), 1024);
-
-					std::cout << buffer << std::endl;
 					rq = pRequest(buffer, clt_config, sck, map, ret_read);
-					// std::cout << "location *************** " << map[sck].getLocPath() << std::endl;
 					ft_add_client(sck, new_clt, rq, clt);
 					new_client::iterator it;
 					it = new_clt.find(sck);
 					it->second.sett_rq_object(rq);
 					it_sck = it->first;
-					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
 					map[it_sck] = it->second.get_rq_object();
 					client_config::iterator iter;
 					iter = clt_config.find(it_sck);
 					map[it_sck].port =  iter->second.get_port(); 
 					std::map<std::string, std::string> headers = map[it_sck].getHeaders();
-					// for(std::map<std::string, std::string>::iterator ita = headers.begin(); ita != headers.end(); ita++)
-					// {
-					// 	std::cout << ita->first << " : " << ita->second << std::endl;
-					// }
-					// req._res = new response();
 					map[it_sck]._res = new response();
-					// req._res->SetStatusCode("HTTP/1.1 200 OK\r\n");
-					// req._res->set_get_con_type(req);
-					// req._res->setContentLenght(req);
 					
 					if (map[it_sck].getMethod() == "GET")
 					{
+						std::cout << req.done << std::endl;
 						if (!map[it_sck]._loc.get_redir().empty())
 						{
 							map[it_sck].op = 5;
@@ -185,7 +143,6 @@ int main(int ac, char **av)
 					}
 					else if ((map[it_sck].getMethod() == "POST"))
 					{
-						std::cout << "00000000000000000000000 " << map[it_sck].getIsDone()<<std::endl; 
 						if (!map[it_sck]._loc.get_redir().empty())
 						{
 							map[it_sck].op = 5;
@@ -205,25 +162,19 @@ int main(int ac, char **av)
 					}
 					break;
 				}
-				else if (FD_ISSET(it_sck, &write_fds))
+				else if (FD_ISSET(sck, &write_fds))
 				{
-					// req._res->Send(it_sck, req);
 					printf("\n------------------Hello message sent-------------------\n");
-					map[it_sck]._res->Send(it_sck, map[it_sck]);
-					// if(req._res->_isDone == true)
-					//{
-					// std::cout << "sck erase >>>> " << it_sck << std::endl;
-					//  std::cout << " . aaaaaaaaa" << std::endl;
-					if (map[it_sck]._isDone == true)
+					map[sck]._res->Send(sck, map[sck]);
+					if (map[sck]._isDone == true)
 					{
-						std::cout << "sck erase >>>> " << it_sck << std::endl;
-						FD_CLR(it_sck, &write_master_fds);
-						close(it_sck);
-						map.erase(it_sck);
-						new_clt.erase(it_sck);
-						// delete [] req._res;
-						acceptedSockets.erase(it_sck);
-						clt_config.erase(it_sck);
+						// std::cout << "sck erase >>>> " << sck << std::endl;
+						FD_CLR(sck, &write_master_fds);
+						close(sck);
+						map.erase(sck);
+						new_clt.erase(sck);
+						acceptedSockets.erase(sck);
+						clt_config.erase(sck);
 					}
 					break;
 				}
@@ -236,6 +187,3 @@ int main(int ac, char **av)
 		std::cout << e.what() << std::endl;
 	}
 }
-
-// To DO:
-// update the map after accepting a socket !
