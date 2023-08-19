@@ -24,6 +24,7 @@ class request{
         std::string _method;
         response *_res;
         std::string _uri;
+        std::string port;
          int op;
         unsigned int file_size;
         char    buffer[BUFF_SIZE];

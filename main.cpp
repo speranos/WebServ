@@ -150,7 +150,7 @@ int main(int ac, char **av)
 						sck = ft_new_connex(sck, acceptedSockets, MAX_FD, read_master_fds, clt_config);
 					ret_read = read(sck, (void *)buffer.c_str(), 1024);
 
-					// std::cout << buffer << std::endl;
+					std::cout << buffer << std::endl;
 					rq = pRequest(buffer, clt_config, sck, map, ret_read);
 					// std::cout << "location *************** " << map[sck].getLocPath() << std::endl;
 					ft_add_client(sck, new_clt, rq, clt);
@@ -160,6 +160,9 @@ int main(int ac, char **av)
 					it_sck = it->first;
 					// std::cout << "client sck >>>>>>>>>>> " << it->first << std::endl;
 					map[it_sck] = it->second.get_rq_object();
+					client_config::iterator iter;
+					iter = clt_config.find(it_sck);
+					map[it_sck].port =  iter->second.get_port(); 
 					std::map<std::string, std::string> headers = map[it_sck].getHeaders();
 					// for(std::map<std::string, std::string>::iterator ita = headers.begin(); ita != headers.end(); ita++)
 					// {
@@ -174,7 +177,9 @@ int main(int ac, char **av)
 					if (map[it_sck].getMethod() == "GET")
 					{
 						if (!map[it_sck]._loc.get_redir().empty())
+						{
 							map[it_sck].op = 5;
+						}
 						else
 							map[it_sck]._res->GetMethod(map[it_sck]);
 					}

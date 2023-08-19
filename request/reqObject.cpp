@@ -168,10 +168,10 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
     Server_obj server = myserver->second;
     if(req.getContentLenght() < server.getBodySize()){
         std::cout << "LARGE BODY CONTENT" << std::endl;
-        // req.statuscode = 400;
-        // req.SetErrorStatusCode(400);
-        // req.setStatusCodePath(req);
-        // req.op = 4;
+        req.statuscode = 400;
+        req.SetErrorStatusCode(400);
+        req.setStatusCodePath(req);
+        req.op = 4;
     }
     std::vector<location_obj> locations = server.get_location();
 
@@ -258,8 +258,8 @@ int  analyzeRequest(request& req){
     const std::string& method = req.getMethod();
 
     // Method Validation
-    if (method == "GET" || method == "POST" || method == "DELETE");
-    else {
+    if (method != "GET" && method != "POST" && method != "DELETE")
+    {
         req.statuscode = 405;
         req.SetErrorStatusCode(405);
         req.setStatusCodePath(req);

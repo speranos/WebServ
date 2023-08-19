@@ -22,8 +22,8 @@ void    response::setEnv(request &req)
     std::string path = req.getLocPath();
     std::string server_name = req.getServerName();
     this->_env.push_back(std::string("REQUEST_METHOD=") + req.getMethod());
-    this->_env.push_back("SERVER_PORT=" + req.to_str(1050));
-    this->_env.push_back(std::string("HTTP_PORT=") + req.to_str(1050));
+    this->_env.push_back("SERVER_PORT=" + req.port);
+    this->_env.push_back(std::string("HTTP_PORT=") + req.port);
     this->_env.push_back(std::string("SCRIPT_NAME=") + path);
     this->_env.push_back(std::string("SCRIPT_FILENAME=") + path);
     this->_env.push_back(std::string("PATH_INFO=") + path);

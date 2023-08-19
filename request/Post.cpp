@@ -71,8 +71,7 @@ void response::MethodPost(request &req)
         // std::cout << "**********upload path >> " << upload_path << std::endl;
         if (!system(("mv " + req.getBody() + " " + upload_path).c_str()))
         {
-            // upload sucsses 201 respond
-
+            req.op = 7;
         }
     }
     else
@@ -90,13 +89,9 @@ void response::MethodPost(request &req)
             if (isDirectory(upload_path.c_str()))
             {
                 // directory
-                if (upload_path.find_last_of("/") + 1)
-                {
-                    // 301 redirection
-
-
-
-
+                if (req._uri.find_last_of("/") + 1){
+                    // req._uri += "/";
+                    req.op = 5;
                 }
                 else
                 {

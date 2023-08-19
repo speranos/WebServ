@@ -218,7 +218,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
         return req;
     }
     std::string bff = stream.str();
-    if((req.getMethod() == "GET" || req.getMethod() == "DELETE") && bff.find("\n\r\n\r")){
+    if((req.getMethod() != "POST") && bff.find("\n\r\n\r")){
         req.setIsDone(true);        
     }
     std::map<std::string, std::string>::iterator it = req._headers.find("Content-Length");
