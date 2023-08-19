@@ -382,47 +382,47 @@ std::string request::setStatusCodePath(request &req)
 {
     std::string res;
     if(req.statuscode == 204){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/204.html";
+        res = "./www/html/error_pages/204.html";
         return res;
     }
     else if(req.statuscode == 400){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/400.html";
+        res = "./www/html/error_pages/400.html";
         return res;
     }
     else if(req.statuscode == 403){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/403.html";
+        res = "./www/html/error_pages/403.html";
         return res;
     }
     else if(req.statuscode == 404){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/404.html";
+        res = "./www/html/error_pages/404.html";
         return res;
     }
     else if(req.statuscode == 405){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/405.html";
+        res = "./www/html/error_pages/405.html";
         return res;
     }
     else if(req.statuscode == 500){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/500.html";
+        res = "./www/html/error_pages/500.html";
         return res;
     }
     else if(req.statuscode == 501){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/501.html";
+        res = "./www/html/error_pages/501.html";
         return res;
     }
     else if(req.statuscode == 409){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/505.html";
+        res = "./www/html/error_pages/505.html";
         return res;
     }
     else if(req.statuscode == 413){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/413.html";
+        res = "./www/html/error_pages/413.html";
         return res;
     }
     else if(req.statuscode == 414){
-        res = "/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/414.html";
+        res = "./www/html/error_pages/414.html";
         return res;
     }
     else
-        return ("/nfs/homes/maboulho/Desktop/last_push/www/html/error_pages/400.html");
+        return ("./www/html/error_pages/400.html");
 
 }
 std::string request::error_page(request &req,std::ifstream &input_file)
