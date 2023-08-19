@@ -49,7 +49,7 @@ private:
 	typedef std::map<std::string ,std::string>	error_page;
 	std::string		port;
 	std::string		host;
-	int				body_size;
+	std::string		body_size;
 	location		C_location;
 	error_page		error;
 
@@ -62,8 +62,10 @@ public:
 	std::string	get_port();
 	std::string	get_host();
 	unsigned long	getBodySize();
+	std::string getBodySize_string();
 	std::vector<location_obj> 	get_location();
 	void		set_adrr(sockaddr_in &address);
+	void		set_bodysize();
 };
 
 typedef std::vector<Server_obj> Server;

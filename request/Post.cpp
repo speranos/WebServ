@@ -65,6 +65,25 @@ int hasIndexFiles(const char *dirPath)
 
 void response::MethodPost(request &req)
 {
+    // std::cout << "*****************gsrgr*************" << std::endl;
+    if(req.getFlag() == true){
+        // cgi
+        std::cout << "dasdas" << std::endl;
+        if (req.getLoc().get_cgi() == true)
+        {
+
+            std::string a = req._res->cgi_exec(req);
+            std::cout << "cgi results" << a << std::endl;
+            req.op = 1;
+        }
+        else
+        {
+            req.statuscode = 403;
+            req.SetErrorStatusCode(403);
+            req.setStatusCodePath(req);
+            req.op = 4;
+        }
+    }
     std::string upload_path = req._loc.get_upload();
     if (canUploadToPath(upload_path.c_str()))
     {
@@ -89,19 +108,19 @@ void response::MethodPost(request &req)
             if (isDirectory(upload_path.c_str()))
             {
                 // directory
-                if (req._uri.find_last_of("/") + 1){
-                    // req._uri += "/";
-                    req.op = 5;
-                }
-                else
-                {
+                // if (req._uri.find_last_of("/") + 1){
+                //     // req._uri += "/";
+                //     req.op = 5;
+                // }
+                // else
+                // {
                     if (!req.getLoc().get_index().empty())
                     {
                         if (req.getLoc().get_cgi() == true)
                         {
 
+                            std::cout << "cgi results" << std::endl;
                             std::string a = req._res->cgi_exec(req);
-                            std::cout << "cgi results" << a << std::endl;
                             req.op = 1;
                         }
                         else
@@ -119,14 +138,16 @@ void response::MethodPost(request &req)
                         req.setStatusCodePath(req);
                         req.op = 4;
                     }
-                }
+                // }
             }
             else
             {
                 // file
+                std::cout << "******************************" << std::endl;
                 if (req.getLoc().get_cgi() == true)
                 {
                     std::string a = req._res->cgi_exec(req);
+                    std::cout << "cgi results" << a << std::endl;
                     req.op = 1;
                 }
                 else

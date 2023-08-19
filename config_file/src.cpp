@@ -24,7 +24,9 @@ void	final_check(Server &config_file)
 	{
 		if(iter->get_host().size() == 0 || iter->get_port().size() == 0 || iter->get_location().size() == 0)
 			throw std::invalid_argument("ERROR: missing some info !");
-		else if(iter->get_location().size() == 0)
+		if(iter->getBodySize_string().size() == 0)
+			iter->set_bodysize();
+		if(iter->get_location().size() == 0)
 			throw std::invalid_argument("ERROR: missing location !");
 		tmp_loc = iter->get_location();
 		iter_loc = tmp_loc.begin();

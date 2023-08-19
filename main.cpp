@@ -185,12 +185,14 @@ int main(int ac, char **av)
 					}
 					else if ((map[it_sck].getMethod() == "POST"))
 					{
+						std::cout << "00000000000000000000000 " << map[it_sck].getIsDone()<<std::endl; 
 						if (!map[it_sck]._loc.get_redir().empty())
 						{
 							map[it_sck].op = 5;
 						}
-						if (map[it_sck].getIsDone() == true)
+						if (map[it_sck].getIsDone() == true){
 							map[it_sck]._res->MethodPost(map[it_sck]);
+						}
 					}
 					else if (map[it_sck].getMethod() == "DELETE")
 						map[it_sck]._res->methodDelete(req);

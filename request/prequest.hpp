@@ -34,6 +34,7 @@ class request{
         std::string _serverName;
         std::string _root;
         std::string _locPath;
+         bool    _flag;
          bool    _isOpen;
         bool    headerSent;
         bool    _isDone;
@@ -137,6 +138,7 @@ class request{
         location_obj getLoc() const;
         unsigned long         getContentLenght() const;
         bool        getIsDone() const;
+        bool        getFlag() const;
 
         void setMethod(const std::string& method);
         void setUri(const std::string& url);
@@ -151,6 +153,7 @@ class request{
         void setLocPath(const std::string& path);
         void setRoot(const std::string& path);
         void setIsDone(const bool& isdone);
+        void setFlag(const bool& isdone);
         void clear();
 };
 

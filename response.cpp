@@ -258,7 +258,6 @@ void    response::set_get_con_type(request &req)
         std::ifstream file(req.getLocPath().c_str(), std::ios::binary);
         file.seekg(0, std::ios::end);
         this->file_size = file.tellg();
-        std::cout << "file size is : " << file_size << std::endl;
         file.close();
         this->_Content_Lenght += "Content-Length: " + str(file_size) + "\r\n";
     };
@@ -484,7 +483,6 @@ std::string request::setErrorContentLenght(std::string path)
         std::ifstream file(path.c_str(), std::ios::binary);
         file.seekg(0, std::ios::end);
         this->file_size = file.tellg();
-        std::cout << "file size is : " << file_size << std::endl;
         file.close();
         this->_Content_Lenght += "Content-Length: " + str(file_size) + "\r\n";
         return(this->_Content_Lenght);
@@ -551,7 +549,6 @@ void response::setContentLenghtindex(request &req)
         std::ifstream file(path.c_str(), std::ios::binary);
         file.seekg(0, std::ios::end);
         this->file_size = file.tellg();
-        std::cout << "file size is : " << file_size << std::endl;
         file.close();
         this->_Content_Lenght += "Content-Length: " + str(file_size) + "\r\n";
     };

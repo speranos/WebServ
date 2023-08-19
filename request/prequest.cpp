@@ -189,6 +189,8 @@ void storeRequestBody(std::istringstream& stream, request& req, int sck, int ret
         bodyFile.close();
         req.setBody(filename);
         req.setIsDone(true);
+        if(req.getContentLenght() != (unsigned long)bodyFile.tellp())
+            req.setFlag(true);     
     }
 }
 
@@ -234,6 +236,7 @@ request pRequest(std::string& buffer, client_config clt, int sck, requests& map,
     }
 
     if (req.getIsDone() == true){
+        std::cout << "**************" << std::endl;
         analyzeRequest(req);
         matchLocation(req, req.getUri() ,clt, sck);
     }

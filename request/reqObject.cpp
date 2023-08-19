@@ -54,6 +54,10 @@ bool request::getIsDone() const{
     return _isdone;
 }
 
+bool request::getFlag() const{
+    return _flag;
+}
+
 void request::setMethod(const std::string& method){
     _method = method;
 }
@@ -97,6 +101,9 @@ void request::setContentLenght(const unsigned long& content_lenght){
 
 void request::setIsDone(const bool& isdone){
     _isdone = isdone;
+}
+void request::setFlag(const bool& flag){
+    _flag = flag;
 }
 
 void request::setLoc(const location_obj& loc){
@@ -166,10 +173,11 @@ void matchLocation(request& req,std::string url, client_config clt, int sck){
     std::map<int, Server_obj>::iterator myserver = clt.find(sck);
 
     Server_obj server = myserver->second;
-    if(req.getContentLenght() < server.getBodySize()){
+    if(req.getContentLenght() > server.getBodySize() && server.getBodySize_string() != "-1"){
+        std::cout << "body_size========== " << server.getBodySize() << std::endl;
         std::cout << "LARGE BODY CONTENT" << std::endl;
-        req.statuscode = 400;
-        req.SetErrorStatusCode(400);
+        req.statuscode = 413;
+        req.SetErrorStatusCode(413);
         req.setStatusCodePath(req);
         req.op = 4;
     }

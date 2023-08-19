@@ -37,7 +37,7 @@ void    response::setEnv(request &req)
 
     if(req.getMethod() == "POST")
     {
-        this->_env.push_back(std::string("CONTENT_TYPE=") + headers["content-type"]);
+        this->_env.push_back(std::string("CONTENT_TYPE=") + headers["Content-Type"]);
         this->_env.push_back(std::string("CONTENT_LENGTH=") + req.to_str(req.getContentLenght()));
     }
     
@@ -106,13 +106,18 @@ std::string  response::cgi_exec(request &req)
     std::string res;
     // req.getLoc().get_upload()
     std::string local = req.getLoc().get_upload() + req.getBody();
-    std::string cgi =  "/tmp/"+generateRandomFileName(".txt");
+    std::string cgi =  "./upload/"+generateRandomFileName(".txt");
     if (req.getMethod() == "POST")
-        fd_in = open(local.c_str(), O_RDWR | O_CREAT, 0666);
+        fd_in = open(local.c_str(), O_RDWR | O_CREAT| O_TRUNC, 0666);
     else if (req.getMethod() == "GET")
         fd_out = open(cgi.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
     setEnv(req);
+    std::cout << "in file ===> " << fd_in << std::endl;
     char **env = env_to_char();
+    for (int i = 0;env[i] != NULL ;i++)
+    {
+        std::cout << env[i] << std::endl;
+    }
     lseek(fd_in, 0, SEEK_SET);
     std::string path = set_cgi_executable(req);
     this->pid = fork();
@@ -172,6 +177,7 @@ std::string  response::cgi_exec(request &req)
             res += line;
             res += "\n";
         }
+        std::cout << res<< std::endl;
         inputfile.close();
         if (fd_in != 0)
             close(fd_in);
@@ -198,8 +204,7 @@ std::string response::serveCgi(request &req)
    std::string res;
     if(!req._isOpen)
     {
-       std::string path = req._res->cgi_exec(req);
-        std::cout << "path :: " << path << std::endl;
+        std::string path = req._res->cgi_exec(req);
         this->file.open(path.c_str(), std::ios::in);
         if(!file.is_open())
         {
