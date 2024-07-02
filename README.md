@@ -1,5 +1,3 @@
-
-https://github.com/speranos/WebServ/assets/57815941/4f3693e6-25bf-4e24-8377-09aa3f6850ab
 # Webserv
 
 ## Introduction
